@@ -16,14 +16,15 @@
 
 package org.springframework.expression.spel;
 
+import org.junit.Assume;
 import org.junit.Test;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.tests.Assume;
-import org.springframework.tests.TestGroup;
+/*import org.springframework.tests.Assume;
+import org.springframework.tests.TestGroup;*/
 
 import static org.junit.Assert.*;
 
@@ -46,7 +47,7 @@ public class PerformanceTests {
 
 	@Test
 	public void testPerformanceOfPropertyAccess() throws Exception {
-		Assume.group(TestGroup.PERFORMANCE);
+		//Assume.group(TestGroup.PERFORMANCE);
 
 		long starttime = 0;
 		long endtime = 0;
@@ -96,7 +97,7 @@ public class PerformanceTests {
 
 	@Test
 	public void testPerformanceOfMethodAccess() throws Exception {
-		Assume.group(TestGroup.PERFORMANCE);
+		//Assume.group(TestGroup.PERFORMANCE);
 
 		long starttime = 0;
 		long endtime = 0;

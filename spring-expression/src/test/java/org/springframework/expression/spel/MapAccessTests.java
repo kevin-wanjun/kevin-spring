@@ -19,6 +19,7 @@ package org.springframework.expression.spel;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Assume;
 import org.junit.Test;
 
 import org.springframework.expression.AccessException;
@@ -29,8 +30,8 @@ import org.springframework.expression.PropertyAccessor;
 import org.springframework.expression.TypedValue;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.tests.Assume;
-import org.springframework.tests.TestGroup;
+/*import org.springframework.tests.Assume;
+import org.springframework.tests.TestGroup;*/
 import org.springframework.util.StopWatch;
 
 import static org.hamcrest.Matchers.*;
@@ -101,7 +102,7 @@ public class MapAccessTests extends AbstractExpressionTests {
 
 	@Test
 	public void testGetValuePerformance() throws Exception {
-		Assume.group(TestGroup.PERFORMANCE);
+	//	Assume.group(TestGroup.PERFORMANCE);
 		Map<String, String> map = new HashMap<>();
 		map.put("key", "value");
 		EvaluationContext context = new StandardEvaluationContext(map);

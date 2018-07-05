@@ -14,6 +14,53 @@
 
   <dependencies>
     <dependency>
+      <groupId>cn.kevin</groupId>
+      <artifactId>spring-aop</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>cn.kevin</groupId>
+      <artifactId>spring-beans</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>cn.kevin</groupId>
+      <artifactId>spring-context</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>cn.kevin</groupId>
+      <artifactId>spring-context-support</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>cn.kevin</groupId>
+      <artifactId>spring-core</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>cn.kevin</groupId>
+      <artifactId>spring-expression</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>cn.kevin</groupId>
+      <artifactId>spring-oxm</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>cn.kevin</groupId>
+      <artifactId>spring-web</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+
+
+    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>2.9.5</version>
@@ -219,49 +266,6 @@
       <artifactId>javax.servlet-api</artifactId>
       <version>4.0.1</version>
       <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>cn.kevin</groupId>
-      <artifactId>spring-aop</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>cn.kevin</groupId>
-      <artifactId>spring-beans</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>cn.kevin</groupId>
-      <artifactId>spring-context</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>cn.kevin</groupId>
-      <artifactId>spring-context-support</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>cn.kevin</groupId>
-      <artifactId>spring-core</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>cn.kevin</groupId>
-      <artifactId>spring-expression</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>cn.kevin</groupId>
-      <artifactId>spring-oxm</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>cn.kevin</groupId>
-      <artifactId>spring-web</artifactId>
-      <scope>compile</scope>
     </dependency>
   </dependencies>
 </project>

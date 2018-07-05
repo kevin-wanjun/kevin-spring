@@ -10,10 +10,10 @@
 
     <modules>
         <module>spring-aop</module>
-        <module>spring-aspects</module>
+        <!--<module>spring-aspects</module>-->
         <module>spring-beans</module>
         <module>spring-context</module>
-        <module>spring-context-indexer</module>
+        <!--<module>spring-context-indexer</module>-->
         <module>spring-context-support</module>
         <module>spring-core</module>
         <module>spring-expression</module>
@@ -64,10 +64,6 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
         <cn.kevin.version>5.0.7-SNAPSHOT</cn.kevin.version>
-
-        <!--groovy-->
-        <groovy.version>2.4.15</groovy.version>
-
         <!--aop-->
         <org.aspectj.aspectjweaver.version>1.9.1</org.aspectj.aspectjweaver.version>
         <!--对象池-->
@@ -76,12 +72,17 @@
         <!--bom-->
         <reactor-bom.version>Bismuth-SR10</reactor-bom.version>
         <netty-bom.version>4.1.25.Final</netty-bom.version>
-
+        <groovy.version>2.4.15</groovy.version>
         <!---->
         <com.jamonapi.jamon.version>2.81</com.jamonapi.jamon.version>
         <javax.transaction-api.version>1.3</javax.transaction-api.version>
         <javax.cache.cache-api.version>1.1.0</javax.cache.cache-api.version>
         <org.apache.logging.log4j.version>2.11.0</org.apache.logging.log4j.version>
+        <org.jetbrains.kotlin-reflect.version>1.2.41</org.jetbrains.kotlin-reflect.version>
+        <org.jetbrains.kotlin-stdlib.version>1.2.41</org.jetbrains.kotlin-stdlib.version>
+        <javax.inject.version>1</javax.inject.version>
+        <org.yaml.snakeyaml.version>1.20</org.yaml.snakeyaml.version>
+
         <!-- ##############测试##############-->
         <junit.version>4.12</junit.version>
         <hamcrest-all.version>1.3</hamcrest-all.version>
@@ -93,17 +94,12 @@
         <!-- 插件版本 -->
         <maven-compiler-plugin.version>3.6.2</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+        <org.codehaus.gmavenplus.gmavenplus-plugin.version>1.5</org.codehaus.gmavenplus.gmavenplus-plugin.version>
+        <org.apache.maven.plugins.maven-surefire-plugin>2.12.4</org.apache.maven.plugins.maven-surefire-plugin>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!--groovy-->
-            <dependency>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-all</artifactId>
-                <version>${groovy.version}</version>
-            </dependency>
-
             <!--aop-->
             <dependency>
                 <groupId>org.aspectj</groupId>
@@ -158,6 +154,31 @@
                 <artifactId>hamcrest-all</artifactId>
                 <version>${org.hamcrest.hamcrest-all.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-reflect</artifactId>
+                <version>${org.jetbrains.kotlin-reflect.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib</artifactId>
+                <version>${org.jetbrains.kotlin-stdlib.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>${javax.inject.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${org.yaml.snakeyaml.version}</version>
+            </dependency>
+
             <!-- ##############测试##############-->
             <!--log4j-->
             <dependency>
@@ -184,6 +205,14 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!--groovy 版本管理-->
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all</artifactId>
+                <version>${groovy.version}</version>
+            </dependency>
+
             <!--netty 版本管理-->
             <dependency>
                 <groupId>io.netty</groupId>
@@ -304,7 +333,7 @@
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.springframework/spring-test -->
-       <!-- <dependency>
+      <!-- <dependency>
             <groupId>cn.kevin</groupId>
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
@@ -366,7 +395,7 @@
                 <plugin>
                     <groupId>org.codehaus.gmavenplus</groupId>
                     <artifactId>gmavenplus-plugin</artifactId>
-                    <version>1.5</version>
+                    <version>${org.codehaus.gmavenplus.gmavenplus-plugin.version}</version>
                     <dependencies>
                         <dependency>
                             <groupId>org.codehaus.groovy</groupId>
@@ -390,6 +419,16 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+
+                <!--插件介绍 https://blog.csdn.net/u012027337/article/details/51741372-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${org.apache.maven.plugins.maven-surefire-plugin}</version>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
                 </plugin>
 
                 <!-- AspectJ 编译插件 -->
@@ -460,16 +499,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <includes>
-                        <include>**/*Tests.java</include>
-                    </includes>
-                    <excludes>
-                        <exclude>**/Abstract*.java</exclude>
-                    </excludes>
-                    <junitArtifactName>junit:junit</junitArtifactName>
-                    <argLine>-Xmx512m</argLine>
-                </configuration>
             </plugin>
         </plugins>
     </build>
