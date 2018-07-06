@@ -57,13 +57,6 @@
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
-
-    <!--测试依赖-->
-    <dependency>
-      <groupId>cn.kevin</groupId>
-      <artifactId>spring-context</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
