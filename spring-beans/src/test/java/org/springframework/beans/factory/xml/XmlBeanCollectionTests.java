@@ -29,6 +29,12 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import groovy.json.JsonBuilder;
+import groovy.json.JsonParser;
+import groovy.json.internal.BaseJsonParser;
+import groovy.json.internal.JsonParserUsingCharacterSource;
+import groovy.json.internal.JsonStringDecoder;
+import jdk.nashorn.internal.parser.JSONParser;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -60,6 +66,7 @@ public class XmlBeanCollectionTests {
 
 	@Before
 	public void loadBeans() {
+
 		new XmlBeanDefinitionReader(this.beanFactory).loadBeanDefinitions(
 				new ClassPathResource("collections.xml", getClass()));
 	}

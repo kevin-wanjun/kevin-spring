@@ -1,38 +1,14 @@
-/*
- * Copyright 2002-2017 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.springframework.core.io;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Simple interface for objects that are sources for an {@link InputStream}.
- *
- * <p>This is the base interface for Spring's more extensive {@link Resource} interface.
- *
- * <p>For single-use streams, {@link InputStreamResource} can be used for any
- * given {@code InputStream}. Spring's {@link ByteArrayResource} or any
- * file-based {@code Resource} implementation can be used as a concrete
- * instance, allowing one to read the underlying content stream multiple times.
- * This makes this interface useful as an abstract content source for mail
- * attachments, for example.
  *
  * @author Juergen Hoeller
- * @since 20.01.2004
+ *
+ * 作为 java InputStream 的对象的简单接口 {@link java.io.InputStream}
+ *
  * @see java.io.InputStream
  * @see Resource
  * @see InputStreamResource
@@ -41,15 +17,15 @@ import java.io.InputStream;
 public interface InputStreamSource {
 
 	/**
-	 * Return an {@link InputStream} for the content of an underlying resource.
-	 * <p>It is expected that each call creates a <i>fresh</i> stream.
-	 * <p>This requirement is particularly important when you consider an API such
-	 * as JavaMail, which needs to be able to read the stream multiple times when
-	 * creating mail attachments. For such a use case, it is <i>required</i>
-	 * that each {@code getInputStream()} call returns a fresh stream.
-	 * @return the input stream for the underlying resource (must not be {@code null})
-	 * @throws java.io.FileNotFoundException if the underlying resource doesn't exist
-	 * @throws IOException if the content stream could not be opened
+	 * {@link InputStream}
+	 * @return 底层资源的输入流（不能是{@code null}）
+	 * 每次调用这个方法都会得到一个新的流，这是非常重要的，当你考虑某个API时。
+	 * 比如JavaMail，它在创建邮件附件的时候需要读取多次读取流。对于这样的一个用例，
+	 * 它要求getInputStream()每次返回一个新的流对象，输入流的底层资源不能为空，如果不能正确的获得输入流，
+	 * 将会跑出IOException
+	 *
+	 * @throws java.io.FileNotFoundException 资源不存在
+	 * @throws IOException 如果内容流无法打开
 	 */
 	InputStream getInputStream() throws IOException;
 

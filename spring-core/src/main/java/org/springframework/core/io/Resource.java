@@ -1,19 +1,3 @@
-/*
- * Copyright 2002-2017 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.springframework.core.io;
 
 import java.io.File;
@@ -23,49 +7,32 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-
 import org.springframework.lang.Nullable;
 
 /**
- * Interface for a resource descriptor that abstracts from the actual
- * type of underlying resource, such as a file or class path resource.
- *
- * <p>An InputStream can be opened for every resource if it exists in
- * physical form, but a URL or File handle can just be returned for
- * certain resources. The actual behavior is implementation-specific.
- *
  * @author Juergen Hoeller
- * @since 28.12.2003
- * @see #getInputStream()
- * @see #getURL()
- * @see #getURI()
- * @see #getFile()
- * @see WritableResource
- * @see ContextResource
- * @see UrlResource
- * @see ClassPathResource
- * @see FileSystemResource
- * @see PathResource
- * @see ByteArrayResource
- * @see InputStreamResource
+ *
+ * 在Java中，将不同来源的资源抽象成URL，通过注册不同的handler(URLStreamHandler)来处理不同来源的逻辑 。
+ * 一般handler使用不同的前缀（协议，Protocol)来识别，如file,jar,http:等。
+ * 然而URL没有默认定义相对的Classpath或ServletContext等资源的handler。
+ * 虽然可以注册自己的URLStreamHandler来解析特定的URL前缀，比如classpath.然而这个很麻烦，
+ * 因而spring实现了自己的抽象结构:Resource接口来封装底层资源。
+ *
  */
 public interface Resource extends InputStreamSource {
 
 	/**
-	 * Determine whether this resource actually exists in physical form.
-	 * <p>This method performs a definitive existence check, whereas the
-	 * existence of a {@code Resource} handle only guarantees a valid
-	 * descriptor handle.
+	 * 确定此资源是否实际以物理形式存在
+	 * @return  true 存在 false 不存在
 	 */
 	boolean exists();
 
 	/**
-	 * Indicate whether the contents of this resource can be read via
-	 * {@link #getInputStream()}.
-	 * <p>Will be {@code true} for typical resource descriptors;
-	 * note that actual content reading may still fail when attempted.
-	 * However, a value of {@code false} is a definitive indication
-	 * that the resource content cannot be read.
+	 *
+	 * 是否可以通过读取此资源的内容
+	 * @return
+	 * {@code true} 请注意，尝试时实际内容读取可能仍然失败。
+	 * {@code false}的值是明确的指示无法读取资源内容。
 	 * @see #getInputStream()
 	 */
 	default boolean isReadable() {
@@ -73,21 +40,21 @@ public interface Resource extends InputStreamSource {
 	}
 
 	/**
-	 * Indicate whether this resource represents a handle with an open stream.
-	 * If {@code true}, the InputStream cannot be read multiple times,
-	 * and must be read and closed to avoid resource leaks.
-	 * <p>Will be {@code false} for typical resource descriptors.
+	 *
+	 * 指示此资源是否表示具有开放流的句柄。
+	 * @return
+	 *  @{code} 则无法多次读取InputStream，必须阅读并关闭以避免资源泄漏。
+	 *  @{code} 对于典型的资源描述符
 	 */
 	default boolean isOpen() {
 		return false;
 	}
 
 	/**
-	 * Determine whether this resource represents a file in a file system.
-	 * A value of {@code true} strongly suggests (but does not guarantee)
-	 * that a {@link #getFile()} call will succeed.
-	 * <p>This is conservatively {@code false} by default.
-	 * @since 5.0
+	 * 确定此资源是否表示文件系统中的文件。
+	 * @return
+	 *  @{code} 表示是(但不保证) {@link #getFile()} 调用将成功
+	 *  @{code} 默认情况下为false
 	 * @see #getFile()
 	 */
 	default boolean isFile() {
@@ -95,25 +62,24 @@ public interface Resource extends InputStreamSource {
 	}
 
 	/**
-	 * Return a URL handle for this resource.
-	 * @throws IOException if the resource cannot be resolved as URL,
-	 * i.e. if the resource is not available as descriptor
+	 * 返回此资源的URL句柄
+	 * @return {@link java.net.URL}
+	 * @throws IOException 如果资源无法解析为URL 即，如果资源不可用作描述符
 	 */
 	URL getURL() throws IOException;
 
 	/**
-	 * Return a URI handle for this resource.
-	 * @throws IOException if the resource cannot be resolved as URI,
-	 * i.e. if the resource is not available as descriptor
-	 * @since 2.5
+	 * 返回此资源的URI句柄。
+	 * @return {@link java.net.URI}
+	 * @throws IOException 如果资源无法解析为URI 即，如果资源不可用作描述符
 	 */
 	URI getURI() throws IOException;
 
 	/**
-	 * Return a File handle for this resource.
-	 * @throws java.io.FileNotFoundException if the resource cannot be resolved as
-	 * absolute file path, i.e. if the resource is not available in a file system
-	 * @throws IOException in case of general resolution/reading failures
+	 * 返回此资源的File句柄。
+	 * @return {@link java.io.File}
+	 * @throws java.io.FileNotFoundException 如果资源无法解析为绝对文件路径，即资源在文件系统中不可用
+	 * @throws IOException 在一般读取失败的情况下
 	 * @see #getInputStream()
 	 */
 	File getFile() throws IOException;
@@ -134,42 +100,37 @@ public interface Resource extends InputStreamSource {
 	}
 
 	/**
-	 * Determine the content length for this resource.
-	 * @throws IOException if the resource cannot be resolved
-	 * (in the file system or as some other known physical resource type)
+	 * 确定此资源的内容长度。
+	 * @return 长度
+	 * @throws IOException
 	 */
 	long contentLength() throws IOException;
 
 	/**
-	 * Determine the last-modified timestamp for this resource.
-	 * @throws IOException if the resource cannot be resolved
-	 * (in the file system or as some other known physical resource type)
+	 * 确定此资源的上次修改时间戳。
+	 * @return 时间戳
+	 * @throws IOException
 	 */
 	long lastModified() throws IOException;
 
 	/**
-	 * Create a resource relative to this resource.
-	 * @param relativePath the relative path (relative to this resource)
-	 * @return the resource handle for the relative resource
-	 * @throws IOException if the relative resource cannot be determined
+	 * 依据当前资源创建一个相对的资源，并返回资源对象
+	 * @param relativePath 创建相对资源的路径
+	 * @return 返回创建的资源
+	 * @throws IOException
 	 */
 	Resource createRelative(String relativePath) throws IOException;
 
 	/**
-	 * Determine a filename for this resource, i.e. typically the last
-	 * part of the path: for example, "myfile.txt".
-	 * <p>Returns {@code null} if this type of resource does not
-	 * have a filename.
+	 * 返回资源的文件名
+	 * @return 资源名称
 	 */
 	@Nullable
 	String getFilename();
 
 	/**
-	 * Return a description for this resource,
-	 * to be used for error output when working with the resource.
-	 * <p>Implementations are also encouraged to return this value
-	 * from their {@code toString} method.
-	 * @see Object#toString()
+	 * 返回资源的描述信息
+	 * @return 资源的描述信息
 	 */
 	String getDescription();
 

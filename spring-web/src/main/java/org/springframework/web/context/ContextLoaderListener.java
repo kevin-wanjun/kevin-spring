@@ -33,6 +33,21 @@ import javax.servlet.ServletContextListener;
  * @since 17.02.2003
  * @see #setContextInitializers
  * @see org.springframework.web.WebApplicationInitializer
+ *
+ *
+ *
+ * ContextLoaderListener实现了ServletContextListener接口，ServletContextListener是Java EE标准接口之一，
+ * 类似tomcat，jetty的java容器启动时便会触发该接口的contextInitialized。
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 public class ContextLoaderListener extends ContextLoader implements ServletContextListener {
 
@@ -100,6 +115,7 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
+		//在父类ContextLoader中实现
 		initWebApplicationContext(event.getServletContext());
 	}
 

@@ -666,12 +666,10 @@ public abstract class StringUtils {
 			String element = pathArray[i];
 			if (CURRENT_PATH.equals(element)) {
 				// Points to current directory - drop it.
-			}
-			else if (TOP_PATH.equals(element)) {
+			} else if (TOP_PATH.equals(element)) {
 				// Registering top path found.
 				tops++;
-			}
-			else {
+			} else {
 				if (tops > 0) {
 					// Merging path element with element corresponding to top path.
 					tops--;

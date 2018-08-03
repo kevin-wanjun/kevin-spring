@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.springframework.core.io.ClassPathResource;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
@@ -78,29 +79,36 @@ import org.springframework.util.xml.XmlValidationModeDetector;
 public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 	/**
-	 * Indicates that the validation should be disabled.
+	 * 禁用 xml 的验证模式
+	 * {@link XmlValidationModeDetector#VALIDATION_NONE}
 	 */
 	public static final int VALIDATION_NONE = XmlValidationModeDetector.VALIDATION_NONE;
 
 	/**
-	 * Indicates that the validation mode should be detected automatically.
+	 * 自动检测xml的验证模式
+	 * 参考：https://blog.csdn.net/nihaogeyunyun/article/details/69360678
+	 * {@link XmlValidationModeDetector#VALIDATION_AUTO}
 	 */
 	public static final int VALIDATION_AUTO = XmlValidationModeDetector.VALIDATION_AUTO;
 
 	/**
-	 * Indicates that DTD validation should be used.
+	 * 使用 DTD 来验证 xml
+	 * {@link XmlValidationModeDetector#VALIDATION_DTD}
 	 */
 	public static final int VALIDATION_DTD = XmlValidationModeDetector.VALIDATION_DTD;
 
 	/**
-	 * Indicates that XSD validation should be used.
+	 *  使用 XSD 来验证 xml
+	 *  {@link XmlValidationModeDetector#VALIDATION_XSD}
 	 */
 	public static final int VALIDATION_XSD = XmlValidationModeDetector.VALIDATION_XSD;
 
 
 	/** Constants instance for this class */
 	private static final Constants constants = new Constants(XmlBeanDefinitionReader.class);
-
+	/**
+	 * 用于指定 xml 的验证方式，默认为程序自动识别
+	 */
 	private int validationMode = VALIDATION_AUTO;
 
 	private boolean namespaceAware = false;
@@ -170,7 +178,8 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	}
 
 	/**
-	 * Return the validation mode to use.
+	 * 返回 xml 的验证模式 默认是程序自动检测
+	 * @return
 	 */
 	public int getValidationMode() {
 		return this.validationMode;
@@ -321,20 +330,33 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			currentResources = new HashSet<>(4);
 			this.resourcesCurrentlyBeingLoaded.set(currentResources);
 		}
+		/*
+		currentResources 为HashSet 如果添加失败说明资源已经存在集合当中，则抛出异常
+		EncodedResource 的 equals、hashCode已重写
+		 */
 		if (!currentResources.add(encodedResource)) {
 			throw new BeanDefinitionStoreException(
 					"Detected cyclic loading of " + encodedResource + " - check your import definitions!");
 		}
 		try {
+			//获取输入流
 			InputStream inputStream = encodedResource.getResource().getInputStream();
 			try {
+
 				InputSource inputSource = new InputSource(inputStream);
+				//没有字符集编码使用 EncodedResource 类的,EncodedResource也有可能为null
 				if (encodedResource.getEncoding() != null) {
 					inputSource.setEncoding(encodedResource.getEncoding());
 				}
+				//
 				return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
 			}
 			finally {
+				/**
+				 * 这里为什么不这样写
+				 * if(inputStream != null){ inputStream.close(); }
+				 * 估计是因为{@link ClassPathResource#getInputStream()}里面已经处理了
+				 */
 				inputStream.close();
 			}
 		}
@@ -387,7 +409,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	protected int doLoadBeanDefinitions(InputSource inputSource, Resource resource)
 			throws BeanDefinitionStoreException {
 		try {
+			//加载 xml document对象
 			Document doc = doLoadDocument(inputSource, resource);
+			//注册
 			return registerBeanDefinitions(doc, resource);
 		}
 		catch (BeanDefinitionStoreException ex) {
@@ -423,10 +447,22 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @throws Exception when thrown from the DocumentLoader
 	 * @see #setDocumentLoader
 	 * @see DocumentLoader#loadDocument
+	 *
+	 * documentLoader 实例对象为 ${@link org.springframework.beans.factory.xml.DefaultDocumentLoader#loadDocument}
 	 */
 	protected Document doLoadDocument(InputSource inputSource, Resource resource) throws Exception {
-		return this.documentLoader.loadDocument(inputSource, getEntityResolver(), this.errorHandler,
-				getValidationModeForResource(resource), isNamespaceAware());
+		return this.documentLoader.loadDocument(
+				inputSource,
+				getEntityResolver(),
+				this.errorHandler,
+				/*
+					获取xml文件的验证模式(DTD或者XSD)，可以自己设置验证方式，
+					否则默认是开启VALIDATION_AUTO即自动获取验证模式的，
+					底层实现是InputStream读取xml文件看xml文件是否包含DOCTYPE单词，包含的话就是DTD，否则返回XSD。
+				 */
+				getValidationModeForResource(resource),
+				isNamespaceAware()
+		);
 	}
 
 
@@ -438,28 +474,34 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * mode, even when something other than {@link #VALIDATION_AUTO} was set.
 	 */
 	protected int getValidationModeForResource(Resource resource) {
+		//获取xml的验证方式
 		int validationModeToUse = getValidationMode();
+		//不是自动检测验证方式
 		if (validationModeToUse != VALIDATION_AUTO) {
 			return validationModeToUse;
 		}
+		//获取 xml 属于何种验证方式
 		int detectedMode = detectValidationMode(resource);
+		//读取 xml 异常则是自动简称验证模式，读完整个 xml 都无法确定则是 XSD 验证模式
 		if (detectedMode != VALIDATION_AUTO) {
 			return detectedMode;
 		}
-		// Hmm, we didn't get a clear indication... Let's assume XSD,
-		// since apparently no DTD declaration has been found up until
-		// detection stopped (before finding the document's root tag).
+		//读取 xml 异常的时候
 		return VALIDATION_XSD;
 	}
 
 	/**
-	 * Detects which kind of validation to perform on the XML file identified
-	 * by the supplied {@link Resource}. If the file has a {@code DOCTYPE}
-	 * definition then DTD validation is used otherwise XSD validation is assumed.
-	 * <p>Override this method if you would like to customize resolution
-	 * of the {@link #VALIDATION_AUTO} mode.
+	 * 检测解析的 xml 脚本属于那种验证方式
+	 * 如果 xml 中有{@code DOCTYPE} 则是 DTD 验证 没有则是 XSD 验证
+	 * {@link #VALIDATION_NONE}
+	 * {@link #VALIDATION_AUTO}
+	 * {@link #VALIDATION_DTD}
+	 * {@link #VALIDATION_XSD}
+	 * @param resource
+	 * @return
 	 */
 	protected int detectValidationMode(Resource resource) {
+		//输入流没有打开则异常
 		if (resource.isOpen()) {
 			throw new BeanDefinitionStoreException(
 					"Passed-in Resource [" + resource + "] contains an open stream: " +
@@ -480,6 +522,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		}
 
 		try {
+			//获取 xml 是何种验证方式
 			return this.validationModeDetector.detectValidationMode(inputStream);
 		}
 		catch (IOException ex) {
@@ -502,7 +545,11 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see BeanDefinitionDocumentReader#registerBeanDefinitions
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
+		//DefaultBeanDefinitionDocumentReader
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
+		if(logger.isDebugEnabled()){
+			logger.debug("BeanDefinitionDocumentReader getClass:"+documentReader.getClass());
+		}
 		int countBefore = getRegistry().getBeanDefinitionCount();
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
 		return getRegistry().getBeanDefinitionCount() - countBefore;

@@ -35,46 +35,49 @@ import org.springframework.util.StringUtils;
 public class XmlValidationModeDetector {
 
 	/**
-	 * Indicates that the validation should be disabled.
+	 * 禁用 xml 的验证模式
+	 * @url https://blog.csdn.net/nihaogeyunyun/article/details/69360678
 	 */
 	public static final int VALIDATION_NONE = 0;
 
 	/**
-	 * Indicates that the validation mode should be auto-guessed, since we cannot find
-	 * a clear indication (probably choked on some special characters, or the like).
+	 * 自动检测xml的验证模式
+	 * 参考：https://blog.csdn.net/nihaogeyunyun/article/details/69360678
 	 */
 	public static final int VALIDATION_AUTO = 1;
 
 	/**
 	 * Indicates that DTD validation should be used (we found a "DOCTYPE" declaration).
+	 * 使用 DTD 来验证 xml
+	 * 及 xml 包含 "DOCTYPE" 声明
 	 */
 	public static final int VALIDATION_DTD = 2;
 
 	/**
-	 * Indicates that XSD validation should be used (found no "DOCTYPE" declaration).
+	 * 使用 XSD 来验证 xml
+	 * 及 xml 未包含 "DOCTYPE" 声明
 	 */
 	public static final int VALIDATION_XSD = 3;
 
 
 	/**
-	 * The token in a XML document that declares the DTD to use for validation
-	 * and thus that DTD validation is being used.
+	 * xml 中用于验证是否是 DTD 的依据，存在则是
 	 */
 	private static final String DOCTYPE = "DOCTYPE";
 
 	/**
-	 * The token that indicates the start of an XML comment.
+	 * 表示XML注释开始的标记。
 	 */
 	private static final String START_COMMENT = "<!--";
 
 	/**
-	 * The token that indicates the end of an XML comment.
+	 * 表示XML注释结束的标记。
 	 */
 	private static final String END_COMMENT = "-->";
 
 
 	/**
-	 * Indicates whether or not the current parse position is inside an XML comment.
+	 * 指示当前解析位置是否位于XML注释内。
 	 */
 	private boolean inComment;
 
@@ -98,10 +101,12 @@ public class XmlValidationModeDetector {
 				if (this.inComment || !StringUtils.hasText(content)) {
 					continue;
 				}
+				//验证是否是 DTD 模式
 				if (hasDoctype(content)) {
 					isDtdValidated = true;
 					break;
 				}
+				//验证是否是 XSD 模式
 				if (hasOpeningTag(content)) {
 					// End of meaningful data...
 					break;

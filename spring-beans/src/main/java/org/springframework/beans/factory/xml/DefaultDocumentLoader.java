@@ -68,12 +68,17 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	@Override
 	public Document loadDocument(InputSource inputSource, EntityResolver entityResolver,
 			ErrorHandler errorHandler, int validationMode, boolean namespaceAware) throws Exception {
-
+		/**
+		 * {@link com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl}
+		 */
 		DocumentBuilderFactory factory = createDocumentBuilderFactory(validationMode, namespaceAware);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Using JAXP provider [" + factory.getClass().getName() + "]");
 		}
 		DocumentBuilder builder = createDocumentBuilder(factory, entityResolver, errorHandler);
+		/**
+		 * @see  com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderImpl#parse(InputSource)
+		 */
 		return builder.parse(inputSource);
 	}
 
@@ -87,11 +92,16 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	 */
 	protected DocumentBuilderFactory createDocumentBuilderFactory(int validationMode, boolean namespaceAware)
 			throws ParserConfigurationException {
-
+		/**
+		 * 调用 DocumentBuilderFactory.newInstance() 方法得到创建 DOM 解析器的工厂
+		 * {@link com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl}
+		 */
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(namespaceAware);
 
+		//如果没有禁用 xml 验证
 		if (validationMode != XmlValidationModeDetector.VALIDATION_NONE) {
+			//开启验证
 			factory.setValidating(true);
 			if (validationMode == XmlValidationModeDetector.VALIDATION_XSD) {
 				// Enforce namespace aware for XSD...
@@ -127,7 +137,9 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	protected DocumentBuilder createDocumentBuilder(DocumentBuilderFactory factory,
 			@Nullable EntityResolver entityResolver, @Nullable ErrorHandler errorHandler)
 			throws ParserConfigurationException {
-
+		/**
+		 * @see com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl#newDocumentBuilder
+		 */
 		DocumentBuilder docBuilder = factory.newDocumentBuilder();
 		if (entityResolver != null) {
 			docBuilder.setEntityResolver(entityResolver);

@@ -146,7 +146,7 @@ public interface BeanFactory {
 	 * required type. This means that ClassCastException can't be thrown on casting
 	 * the result correctly, as can happen with {@link #getBean(String)}.
 	 * <p>Translates aliases back to the corresponding canonical bean name.
-	 * Will ask the parent factory if the bean cannot be found in this factory instance.
+	 * Will ask the parent factory if the bean cannot be found in this fa ctory instance.
 	 * @param name the name of the bean to retrieve
 	 * @param requiredType type the bean must match. Can be an interface or superclass
 	 * of the actual class, or {@code null} for any match. For example, if the value

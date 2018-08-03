@@ -256,8 +256,12 @@ public class ContextLoader {
 	 * @see #ContextLoader(WebApplicationContext)
 	 * @see #CONTEXT_CLASS_PARAM
 	 * @see #CONFIG_LOCATION_PARAM
+	 *
+	 * 初始化WebApplicationContext，IOC容器
+	 *
 	 */
-	public WebApplicationContext initWebApplicationContext(ServletContext servletContext) {
+	public WebApplicationContext  initWebApplicationContext(ServletContext servletContext) {
+		//判断web容器中是否已经有WebApplicationContext
 		if (servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null) {
 			throw new IllegalStateException(
 					"Cannot initialize context because there is already a root application context present - " +
@@ -274,23 +278,30 @@ public class ContextLoader {
 		try {
 			// Store context in local instance variable, to guarantee that
 			// it is available on ServletContext shutdown.
+			//创建WebApplicationContex
 			if (this.context == null) {
+				//最终得到的是XmlWebApplicationContext
 				this.context = createWebApplicationContext(servletContext);
 			}
 			if (this.context instanceof ConfigurableWebApplicationContext) {
 				ConfigurableWebApplicationContext cwac = (ConfigurableWebApplicationContext) this.context;
+				//判断应用上下文是否激活
 				if (!cwac.isActive()) {
 					// The context has not yet been refreshed -> provide services such as
 					// setting the parent context, setting the application context id, etc
+					//判断是否已经有父容器
 					if (cwac.getParent() == null) {
 						// The context instance was injected without an explicit parent ->
 						// determine parent for root web application context, if any.
+						//获得父容器
 						ApplicationContext parent = loadParentContext(servletContext);
 						cwac.setParent(parent);
 					}
+					//设置并刷新WebApplicationContext容器
 					configureAndRefreshWebApplicationContext(cwac, servletContext);
 				}
 			}
+			//将初始化的WebApplicationContext设置到servletContext中
 			servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
 
 			ClassLoader ccl = Thread.currentThread().getContextClassLoader();
@@ -309,7 +320,7 @@ public class ContextLoader {
 				long elapsedTime = System.currentTimeMillis() - startTime;
 				logger.info("Root WebApplicationContext: initialization completed in " + elapsedTime + " ms");
 			}
-
+			//初始化 WebApplicationContext完成并返回
 			return this.context;
 		}
 		catch (RuntimeException ex) {
