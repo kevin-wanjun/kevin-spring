@@ -45,6 +45,7 @@ import org.springframework.beans.factory.config.MapFactoryBean;
 import org.springframework.beans.factory.config.SetFactoryBean;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.tests.sample.beans.HasMap;
 import org.springframework.tests.sample.beans.TestBean;
 
@@ -66,9 +67,10 @@ public class XmlBeanCollectionTests {
 
 	@Before
 	public void loadBeans() {
+		Resource resource = new ClassPathResource("collections.xml", getClass());
 
-		new XmlBeanDefinitionReader(this.beanFactory).loadBeanDefinitions(
-				new ClassPathResource("collections.xml", getClass()));
+		XmlBeanDefinitionReader xmlBeanDefinitionReader = new XmlBeanDefinitionReader(this.beanFactory);
+		xmlBeanDefinitionReader.loadBeanDefinitions(resource);
 	}
 
 

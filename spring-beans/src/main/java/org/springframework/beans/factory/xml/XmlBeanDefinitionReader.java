@@ -148,14 +148,17 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 
 	/**
-	 * Set whether to use XML validation. Default is {@code true}.
-	 * <p>This method switches namespace awareness on if validation is turned off,
-	 * in order to still process schema namespaces properly in such a scenario.
+	 * 设置是否使用XML验证。
+	 * 默认值 #VALIDATION_AUTO
+	 * true #VALIDATION_AUTO
+	 * false #VALIDATION_NONE;
 	 * @see #setValidationMode
 	 * @see #setNamespaceAware
 	 */
 	public void setValidating(boolean validating) {
+		//true 表示自动检车使用哪种验证格式，false 不验证
 		this.validationMode = (validating ? VALIDATION_AUTO : VALIDATION_NONE);
+
 		this.namespaceAware = !validating;
 	}
 
@@ -168,7 +171,8 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	}
 
 	/**
-	 * Set the validation mode to use. Defaults to {@link #VALIDATION_AUTO}.
+	 * 设置使用何种验证模式
+	 * 默认 {@link #VALIDATION_AUTO}
 	 * <p>Note that this only activates or deactivates validation itself.
 	 * If you are switching validation off for schema files, you might need to
 	 * activate schema namespace support explicitly: see {@link #setNamespaceAware}.
@@ -411,7 +415,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		try {
 			//加载 xml document对象
 			Document doc = doLoadDocument(inputSource, resource);
-			//注册
+			//注册 bean
 			return registerBeanDefinitions(doc, resource);
 		}
 		catch (BeanDefinitionStoreException ex) {
@@ -545,13 +549,18 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see BeanDefinitionDocumentReader#registerBeanDefinitions
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
-		//DefaultBeanDefinitionDocumentReader
+		/**
+		 * {@link DefaultBeanDefinitionDocumentReader#registerBeanDefinitions}
+		 */
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
 		if(logger.isDebugEnabled()){
 			logger.debug("BeanDefinitionDocumentReader getClass:"+documentReader.getClass());
 		}
+
 		int countBefore = getRegistry().getBeanDefinitionCount();
+
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
+
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}
 
@@ -562,7 +571,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see #setDocumentReaderClass
 	 */
 	protected BeanDefinitionDocumentReader createBeanDefinitionDocumentReader() {
-		return BeanDefinitionDocumentReader.class.cast(BeanUtils.instantiateClass(this.documentReaderClass));
+		//反射生成 DefaultBeanDefinitionDocumentReader 对象
+		Object obj = BeanUtils.instantiateClass(this.documentReaderClass);
+		return BeanDefinitionDocumentReader.class.cast(obj);
 	}
 
 	/**

@@ -71,7 +71,9 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	public static final String IMPORT_ELEMENT = "import";
 
 	public static final String RESOURCE_ATTRIBUTE = "resource";
-
+	/**
+	 * 详细解答可以参考：https://blog.csdn.net/lsgqjh/article/details/54973215
+	 */
 	public static final String PROFILE_ATTRIBUTE = "profile";
 
 
@@ -93,8 +95,11 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	@Override
 	public void registerBeanDefinitions(Document doc, XmlReaderContext readerContext) {
 		this.readerContext = readerContext;
-		logger.debug("Loading bean definitions");
+		if(logger.isDebugEnabled()){
+			logger.debug("Loading bean definitions");
+		}
 		Element root = doc.getDocumentElement();
+		/* ********核心注册bean********* */
 		doRegisterBeanDefinitions(root);
 	}
 

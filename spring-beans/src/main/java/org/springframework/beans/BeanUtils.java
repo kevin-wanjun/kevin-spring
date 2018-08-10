@@ -115,10 +115,12 @@ public abstract class BeanUtils {
 	 */
 	public static <T> T instantiateClass(Class<T> clazz) throws BeanInstantiationException {
 		Assert.notNull(clazz, "Class must not be null");
+		//判断class是否属于接口，继承的接口不算，只看当前本身
 		if (clazz.isInterface()) {
 			throw new BeanInstantiationException(clazz, "Specified class is an interface");
 		}
 		try {
+
 			Constructor<T> ctor = (KotlinDetector.isKotlinType(clazz) ?
 					KotlinDelegate.getPrimaryConstructor(clazz) : clazz.getDeclaredConstructor());
 			return instantiateClass(ctor);
