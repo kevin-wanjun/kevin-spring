@@ -98,10 +98,11 @@ public class XmlValidationModeDetector {
 			String content;
 			while ((content = reader.readLine()) != null) {
 				content = consumeCommentTokens(content);
+				//如果读取的行是注释或者空则跳过
 				if (this.inComment || !StringUtils.hasText(content)) {
 					continue;
 				}
-				//验证是否是 DTD 模式
+				//验证是否是 DTD 模式 （DTD 包含 DOCTYPE 关键字）
 				if (hasDoctype(content)) {
 					isDtdValidated = true;
 					break;
@@ -142,8 +143,14 @@ public class XmlValidationModeDetector {
 			return false;
 		}
 		int openTagIndex = content.indexOf('<');
-		return (openTagIndex > -1 && (content.length() > openTagIndex + 1) &&
-				Character.isLetter(content.charAt(openTagIndex + 1)));
+		return (
+				//是否存在 "<" 符号
+				openTagIndex > -1
+				// xml 一行的内容是不是只有 一个 "<" 符号
+				&& (content.length() > openTagIndex + 1)
+				// xml 一行开始的第二个字符是否为字母
+				&& Character.isLetter(content.charAt(openTagIndex + 1))
+		);
 	}
 
 	/**

@@ -68,7 +68,6 @@ public class XmlBeanCollectionTests {
 	@Before
 	public void loadBeans() {
 		Resource resource = new ClassPathResource("collections.xml", getClass());
-
 		XmlBeanDefinitionReader xmlBeanDefinitionReader = new XmlBeanDefinitionReader(this.beanFactory);
 		xmlBeanDefinitionReader.loadBeanDefinitions(resource);
 	}

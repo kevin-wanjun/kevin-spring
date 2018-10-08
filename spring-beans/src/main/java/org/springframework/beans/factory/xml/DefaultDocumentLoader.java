@@ -68,15 +68,15 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	@Override
 	public Document loadDocument(InputSource inputSource, EntityResolver entityResolver,
 			ErrorHandler errorHandler, int validationMode, boolean namespaceAware) throws Exception {
-		/**
-		 * {@link com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl}
-		 */
+		//sax 解析 xml 获取 DocumentBuilderFactory
 		DocumentBuilderFactory factory = createDocumentBuilderFactory(validationMode, namespaceAware);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Using JAXP provider [" + factory.getClass().getName() + "]");
 		}
+		//通过 DocumentBuilderFactory 获取 DocumentBuilder
 		DocumentBuilder builder = createDocumentBuilder(factory, entityResolver, errorHandler);
 		/**
+		 * 进行解析 inputSource 获取document 对象
 		 * @see  com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderImpl#parse(InputSource)
 		 */
 		return builder.parse(inputSource);

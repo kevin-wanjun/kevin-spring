@@ -43,7 +43,11 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	/** Logger available to subclasses */
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	/** Map from alias to canonical name */
+	/**
+	 * bean 的别名集合
+	 * key 为别名
+	 * value 为 beanName
+	 */
 	private final Map<String, String> aliasMap = new ConcurrentHashMap<>(16);
 
 
@@ -53,6 +57,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 		Assert.hasText(alias, "'alias' must not be empty");
 		synchronized (this.aliasMap) {
 			if (alias.equals(name)) {
+				// 如果alias等于name，则将alias从map中删除
 				this.aliasMap.remove(alias);
 				if (logger.isDebugEnabled()) {
 					logger.debug("Alias definition '" + alias + "' ignored since it points to same name");
@@ -62,10 +67,11 @@ public class SimpleAliasRegistry implements AliasRegistry {
 				String registeredName = this.aliasMap.get(alias);
 				if (registeredName != null) {
 					if (registeredName.equals(name)) {
-						// An existing alias - no need to re-register
+						// 已经注册过，直接返回
 						return;
 					}
 					if (!allowAliasOverriding()) {
+						// 不允许覆盖
 						throw new IllegalStateException("Cannot define alias '" + alias + "' for name '" +
 								name + "': It is already registered for name '" + registeredName + "'.");
 					}
@@ -74,7 +80,9 @@ public class SimpleAliasRegistry implements AliasRegistry {
 								registeredName + "' with new target name '" + name + "'");
 					}
 				}
+				// 检测name和alias之间是否构成环路，如果构成环路则抛出异常
 				checkForAliasCircle(name, alias);
+				// 不存在环路，直接注册，建立alias与name之间的映射关系
 				this.aliasMap.put(alias, name);
 				if (logger.isDebugEnabled()) {
 					logger.debug("Alias definition '" + alias + "' registered for name '" + name + "'");
@@ -101,6 +109,12 @@ public class SimpleAliasRegistry implements AliasRegistry {
 		for (Map.Entry<String, String> entry : this.aliasMap.entrySet()) {
 			String registeredName = entry.getValue();
 			if (registeredName.equals(name)) {
+				/**
+				 * BeanName.A =  alias.A
+				 *
+				 * alias.B = BeanName.B
+				 *
+				 */
 				String registeredAlias = entry.getKey();
 				return (registeredAlias.equals(alias) || hasAlias(registeredAlias, alias));
 			}

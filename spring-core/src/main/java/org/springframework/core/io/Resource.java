@@ -15,9 +15,10 @@ import org.springframework.lang.Nullable;
  * 在Java中，将不同来源的资源抽象成URL，通过注册不同的handler(URLStreamHandler)来处理不同来源的逻辑 。
  * 一般handler使用不同的前缀（协议，Protocol)来识别，如file,jar,http:等。
  * 然而URL没有默认定义相对的Classpath或ServletContext等资源的handler。
- * 虽然可以注册自己的URLStreamHandler来解析特定的URL前缀，比如classpath.然而这个很麻烦，
- * 因而spring实现了自己的抽象结构:Resource接口来封装底层资源。
- *
+ * 虽然可以注册自己的URLStreamHandler来解析特定的URL前缀（协议）。
+ * 比如classpath，然而这需要了解URL的实现机制，而且URL也没有提供一些基本方法，如检测当前资源是否存在、检测当前
+ * 资源是否可读等方法。
+ * 因而spring 对其内部使用到的资源实现了自己的抽象结构： Resource 接口来封装底层资源。
  */
 public interface Resource extends InputStreamSource {
 

@@ -59,6 +59,10 @@ import org.springframework.lang.Nullable;
  */
 public abstract class StringUtils {
 
+	public static void main(String[] args) {
+		System.out.println(trimLeadingWhitespace("   111 22"));
+	}
+
 	private static final String FOLDER_SEPARATOR = "/";
 
 	private static final String WINDOWS_FOLDER_SEPARATOR = "\\";
@@ -71,17 +75,11 @@ public abstract class StringUtils {
 
 
 	//---------------------------------------------------------------------
-	// General convenience methods for working with Strings
+	// 使用字符串的通用便利方法
 	//---------------------------------------------------------------------
 
 	/**
-	 * Check whether the given {@code String} is empty.
-	 * <p>This method accepts any Object as an argument, comparing it to
-	 * {@code null} and the empty String. As a consequence, this method
-	 * will never return {@code true} for a non-null non-String object.
-	 * <p>The Object signature is useful for general attribute handling code
-	 * that commonly deals with Strings but generally has to iterate over
-	 * Objects since attributes may e.g. be primitive value objects as well.
+	 * 判断字符串是否为空，如果为nul或者""则返回true，否则返回false
 	 * @param str the candidate String
 	 * @since 3.2.1
 	 */
@@ -90,52 +88,34 @@ public abstract class StringUtils {
 	}
 
 	/**
-	 * Check that the given {@code CharSequence} is neither {@code null} nor
-	 * of length 0.
-	 * <p>Note: this method returns {@code true} for a {@code CharSequence}
-	 * that purely consists of whitespace.
-	 * <p><pre class="code">
-	 * StringUtils.hasLength(null) = false
-	 * StringUtils.hasLength("") = false
-	 * StringUtils.hasLength(" ") = true
-	 * StringUtils.hasLength("Hello") = true
-	 * </pre>
-	 * @param str the {@code CharSequence} to check (may be {@code null})
-	 * @return {@code true} if the {@code CharSequence} is not {@code null} and has length
-	 * @see #hasText(String)
+	 * 判断字符串是否有长度，不等于null同时长度大于0，则为true
+	 * 这里重载两个hasLength方法，其中CharSequence是String的父类，是接口
+	 * @param str
+	 * @return
 	 */
 	public static boolean hasLength(@Nullable CharSequence str) {
 		return (str != null && str.length() > 0);
 	}
 
 	/**
-	 * Check that the given {@code String} is neither {@code null} nor of length 0.
-	 * <p>Note: this method returns {@code true} for a {@code String} that
-	 * purely consists of whitespace.
-	 * @param str the {@code String} to check (may be {@code null})
-	 * @return {@code true} if the {@code String} is not {@code null} and has length
-	 * @see #hasLength(CharSequence)
-	 * @see #hasText(String)
+	 * 判断字符串是否有长度，不等于null同时长度大于0，则为true
+	 * 这里重载两个hasLength方法，其中CharSequence是String的父类，是接口
+	 * @param str
+	 * @return
 	 */
 	public static boolean hasLength(@Nullable String str) {
 		return (str != null && !str.isEmpty());
 	}
 
 	/**
-	 * Check whether the given {@code CharSequence} contains actual <em>text</em>.
-	 * <p>More specifically, this method returns {@code true} if the
-	 * {@code CharSequence} is not {@code null}, its length is greater than
-	 * 0, and it contains at least one non-whitespace character.
-	 * <p><pre class="code">
+	 * 子字符串不为空且其有不为空白字符
 	 * StringUtils.hasText(null) = false
 	 * StringUtils.hasText("") = false
 	 * StringUtils.hasText(" ") = false
 	 * StringUtils.hasText("12345") = true
 	 * StringUtils.hasText(" 12345 ") = true
-	 * </pre>
 	 * @param str the {@code CharSequence} to check (may be {@code null})
 	 * @return {@code true} if the {@code CharSequence} is not {@code null},
-	 * its length is greater than 0, and it does not contain whitespace only
 	 * @see Character#isWhitespace
 	 */
 	public static boolean hasText(@Nullable CharSequence str) {
@@ -143,10 +123,7 @@ public abstract class StringUtils {
 	}
 
 	/**
-	 * Check whether the given {@code String} contains actual <em>text</em>.
-	 * <p>More specifically, this method returns {@code true} if the
-	 * {@code String} is not {@code null}, its length is greater than 0,
-	 * and it contains at least one non-whitespace character.
+	 *子字符串不为空且其有不为空白字符
 	 * @param str the {@code String} to check (may be {@code null})
 	 * @return {@code true} if the {@code String} is not {@code null}, its
 	 * length is greater than 0, and it does not contain whitespace only
@@ -156,9 +133,15 @@ public abstract class StringUtils {
 		return (str != null && !str.isEmpty() && containsText(str));
 	}
 
+	/**
+	 * 遍历字符序列，如果其中有一个不是空白，则返回true
+	 * @param str
+	 * @return
+	 */
 	private static boolean containsText(CharSequence str) {
 		int strLen = str.length();
 		for (int i = 0; i < strLen; i++) {
+			//字符串是否否为空白
 			if (!Character.isWhitespace(str.charAt(i))) {
 				return true;
 			}
@@ -167,7 +150,8 @@ public abstract class StringUtils {
 	}
 
 	/**
-	 * Check whether the given {@code CharSequence} contains any whitespace characters.
+	 * 字符串如果为空或者长度为0 则返回false
+	 * 反之如果其中有一个是空白，则返回true
 	 * @param str the {@code CharSequence} to check (may be {@code null})
 	 * @return {@code true} if the {@code CharSequence} is not empty and
 	 * contains at least 1 whitespace character
@@ -180,6 +164,7 @@ public abstract class StringUtils {
 
 		int strLen = str.length();
 		for (int i = 0; i < strLen; i++) {
+			//字符串是否否为空白
 			if (Character.isWhitespace(str.charAt(i))) {
 				return true;
 			}
@@ -188,7 +173,7 @@ public abstract class StringUtils {
 	}
 
 	/**
-	 * Check whether the given {@code String} contains any whitespace characters.
+	 * 遍历字符序列，如果其中有一个是空白，则返回true
 	 * @param str the {@code String} to check (may be {@code null})
 	 * @return {@code true} if the {@code String} is not empty and
 	 * contains at least 1 whitespace character
@@ -199,7 +184,7 @@ public abstract class StringUtils {
 	}
 
 	/**
-	 * Trim leading and trailing whitespace from the given {@code String}.
+	 * 去除字符串前后的空白
 	 * @param str the {@code String} to check
 	 * @return the trimmed {@code String}
 	 * @see java.lang.Character#isWhitespace
@@ -224,7 +209,7 @@ public abstract class StringUtils {
 	}
 
 	/**
-	 * Trim <i>all</i> whitespace from the given {@code String}:
+	 * 去除字符串所有空白
 	 * leading, trailing, and in between characters.
 	 * @param str the {@code String} to check
 	 * @return the trimmed {@code String}
@@ -247,7 +232,7 @@ public abstract class StringUtils {
 	}
 
 	/**
-	 * Trim leading whitespace from the given {@code String}.
+	 * 去除字符创开始的空白部分
 	 * @param str the {@code String} to check
 	 * @return the trimmed {@code String}
 	 * @see java.lang.Character#isWhitespace
@@ -265,7 +250,7 @@ public abstract class StringUtils {
 	}
 
 	/**
-	 * Trim trailing whitespace from the given {@code String}.
+	 * 去除字符创结尾的空白部分
 	 * @param str the {@code String} to check
 	 * @return the trimmed {@code String}
 	 * @see java.lang.Character#isWhitespace
@@ -283,7 +268,7 @@ public abstract class StringUtils {
 	}
 
 	/**
-	 * Trim all occurrences of the supplied leading character from the given {@code String}.
+	 * 删除字符串以什么开头的字符串
 	 * @param str the {@code String} to check
 	 * @param leadingCharacter the leading character to be trimmed
 	 * @return the trimmed {@code String}
@@ -301,7 +286,7 @@ public abstract class StringUtils {
 	}
 
 	/**
-	 * Trim all occurrences of the supplied trailing character from the given {@code String}.
+	 * 删除字符串以什么结尾的字符串
 	 * @param str the {@code String} to check
 	 * @param trailingCharacter the trailing character to be trimmed
 	 * @return the trimmed {@code String}
@@ -319,7 +304,7 @@ public abstract class StringUtils {
 	}
 
 	/**
-	 * Test if the given {@code String} starts with the specified prefix,
+	 * 忽略大小写，判断字符串是否以prefix开始
 	 * ignoring upper/lower case.
 	 * @param str the {@code String} to check
 	 * @param prefix the prefix to look for
@@ -331,7 +316,7 @@ public abstract class StringUtils {
 	}
 
 	/**
-	 * Test if the given {@code String} ends with the specified suffix,
+	 * 忽略大小写，判断源字符串str是否以suffix结尾，处理逻辑类似上一个方法
 	 * ignoring upper/lower case.
 	 * @param str the {@code String} to check
 	 * @param suffix the suffix to look for

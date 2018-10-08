@@ -328,15 +328,15 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		if (logger.isInfoEnabled()) {
 			logger.info("Loading XML bean definitions from " + encodedResource.getResource());
 		}
-
+		//
 		Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
 		if (currentResources == null) {
 			currentResources = new HashSet<>(4);
 			this.resourcesCurrentlyBeingLoaded.set(currentResources);
 		}
-		/*
-		currentResources 为HashSet 如果添加失败说明资源已经存在集合当中，则抛出异常
-		EncodedResource 的 equals、hashCode已重写
+		/**
+		 * currentResources 为HashSet 如果添加失败说明资源已经存在集合当中，则抛出异常
+	     * EncodedResource 的 equals、hashCode已重写
 		 */
 		if (!currentResources.add(encodedResource)) {
 			throw new BeanDefinitionStoreException(
@@ -352,7 +352,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 				if (encodedResource.getEncoding() != null) {
 					inputSource.setEncoding(encodedResource.getEncoding());
 				}
-				//
+				//逻辑核心部分
 				return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
 			}
 			finally {
@@ -413,7 +413,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	protected int doLoadBeanDefinitions(InputSource inputSource, Resource resource)
 			throws BeanDefinitionStoreException {
 		try {
-			//加载 xml document对象
+			//加载 xml 获取 document对象
 			Document doc = doLoadDocument(inputSource, resource);
 			//注册 bean
 			return registerBeanDefinitions(doc, resource);
@@ -457,12 +457,17 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	protected Document doLoadDocument(InputSource inputSource, Resource resource) throws Exception {
 		return this.documentLoader.loadDocument(
 				inputSource,
+				/**
+				 * 由程序来实现寻找DTD声明的过程,比如我们将ＤＴＤ放在项目的某处在实现时直接将此文档读取并返回个SAX即可,
+				 * 这样就避免了通过网络来寻找DTD的声明
+				 * 可以参考：https://www.cnblogs.com/mjorcen/p/3642855.html
+				 */
 				getEntityResolver(),
 				this.errorHandler,
-				/*
-					获取xml文件的验证模式(DTD或者XSD)，可以自己设置验证方式，
-					否则默认是开启VALIDATION_AUTO即自动获取验证模式的，
-					底层实现是InputStream读取xml文件看xml文件是否包含DOCTYPE单词，包含的话就是DTD，否则返回XSD。
+				/**
+				 * 获取xml文件的验证模式(DTD或者XSD)，可以自己设置验证方式，
+				 * 否则默认是开启VALIDATION_AUTO即自动获取验证模式的，
+				 * 底层实现是InputStream读取xml文件看xml文件是否包含DOCTYPE单词，包含的话就是DTD，否则返回XSD。
 				 */
 				getValidationModeForResource(resource),
 				isNamespaceAware()
@@ -484,7 +489,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		if (validationModeToUse != VALIDATION_AUTO) {
 			return validationModeToUse;
 		}
-		//获取 xml 属于何种验证方式
+		//自动检测验证模式，获取 xml 属于何种验证方式
 		int detectedMode = detectValidationMode(resource);
 		//读取 xml 异常则是自动简称验证模式，读完整个 xml 都无法确定则是 XSD 验证模式
 		if (detectedMode != VALIDATION_AUTO) {
@@ -526,7 +531,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		}
 
 		try {
-			//获取 xml 是何种验证方式
+			// 自动检测xml验证格式的工作委托给XmlValidationModeDetector 处理 获取 xml 是何种验证方式
 			return this.validationModeDetector.detectValidationMode(inputStream);
 		}
 		catch (IOException ex) {
@@ -550,17 +555,21 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
 		/**
-		 * {@link DefaultBeanDefinitionDocumentReader#registerBeanDefinitions}
+		 * {@link DefaultBeanDefinitionDocumentReader}
+		 * 使用DefaultBeanDefinitionDocumentReader 实例化 BeanDefinitionDocumentReader
 		 */
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
 		if(logger.isDebugEnabled()){
 			logger.debug("BeanDefinitionDocumentReader getClass:"+documentReader.getClass());
 		}
-
+		//记录统计前 BeanDefinition 的加载个数
 		int countBefore = getRegistry().getBeanDefinitionCount();
-
+		/**
+		 * 加载及注册bean
+		 * {@link DefaultBeanDefinitionDocumentReader#registerBeanDefinitions}
+		 */
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
-
+		//记录本次加载 BeanDefinition 的个数
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}
 

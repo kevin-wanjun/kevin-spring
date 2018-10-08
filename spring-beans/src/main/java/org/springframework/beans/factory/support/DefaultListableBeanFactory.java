@@ -777,6 +777,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		if (beanDefinition instanceof AbstractBeanDefinition) {
 			try {
+				/**
+				 * 校验AbstractBeanDefinition属性中的methodOverrides
+				 * 验证methodOverrides是否与工厂方法并存或覆盖的方法根本不存在
+				 */
 				((AbstractBeanDefinition) beanDefinition).validate();
 			}
 			catch (BeanDefinitionValidationException ex) {
@@ -784,18 +788,23 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						"Validation of bean definition failed", ex);
 			}
 		}
-
-		BeanDefinition oldBeanDefinition;
-
-		oldBeanDefinition = this.beanDefinitionMap.get(beanName);
+		// 尝试获取beanName是否已经绑定了BeanDefinition
+		BeanDefinition oldBeanDefinition = this.beanDefinitionMap.get(beanName);
+		// 对应beanName已经绑定了BeanDefinition对象
 		if (oldBeanDefinition != null) {
+			// 不允许覆盖绑定
 			if (!isAllowBeanDefinitionOverriding()) {
 				throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,
 						"Cannot register bean definition [" + beanDefinition + "] for bean '" + beanName +
 						"': There is already [" + oldBeanDefinition + "] bound.");
-			}
-			else if (oldBeanDefinition.getRole() < beanDefinition.getRole()) {
-				// e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
+			} else if (oldBeanDefinition.getRole() < beanDefinition.getRole()) {
+				/**
+				 * 定义bean的应用场景
+				 * ROLE_APPLICATION：0, 用户
+				 * ROLE_SUPPORT：1, 某些复杂配置的一部分
+				 * ROLE_INFRASTRUCTURE：2, 完全内部使用
+				 */
+				// 新的bean的role应用场景变小，警告
 				if (this.logger.isWarnEnabled()) {
 					this.logger.warn("Overriding user-defined bean definition for bean '" + beanName +
 							"' with a framework-generated bean definition: replacing [" +
@@ -816,6 +825,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 							"] with [" + beanDefinition + "]");
 				}
 			}
+			// 注册，用map保存注册信息
 			this.beanDefinitionMap.put(beanName, beanDefinition);
 		}
 		else {
@@ -835,7 +845,6 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				}
 			}
 			else {
-				// Still in startup registration phase
 				this.beanDefinitionMap.put(beanName, beanDefinition);
 				this.beanDefinitionNames.add(beanName);
 				this.manualSingletonNames.remove(beanName);
@@ -844,6 +853,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		}
 
 		if (oldBeanDefinition != null || containsSingleton(beanName)) {
+			// 清空所有beanName对应的缓存
 			resetBeanDefinition(beanName);
 		}
 	}
