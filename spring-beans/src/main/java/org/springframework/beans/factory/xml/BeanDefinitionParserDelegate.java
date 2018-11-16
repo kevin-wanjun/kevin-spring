@@ -614,7 +614,12 @@ public class BeanDefinitionParserDelegate {
 		String autowire = ele.getAttribute(AUTOWIRE_ATTRIBUTE);
 		bd.setAutowireMode(getAutowireMode(autowire));
 
-		// 解析depends-on属性
+		/**
+		 * 解析depends-on属性
+		 * depends-on是指指定Bean初始化及销毁时的顺序，使用depends-on属性指定的Bean要先初始化完毕后才初始化当前Bean,
+		 * 由于只有"singleton"Bean才能被Spring管理销毁，所以当指定的Bean都是"singleton"时，
+		 * 使用depends-on属性指定的Bean要在指定的Bean之后销毁。
+		 */
 		if (ele.hasAttribute(DEPENDS_ON_ATTRIBUTE)) {
 			String dependsOn = ele.getAttribute(DEPENDS_ON_ATTRIBUTE);
 			// 多个depends以逗号，分号，或空格分隔

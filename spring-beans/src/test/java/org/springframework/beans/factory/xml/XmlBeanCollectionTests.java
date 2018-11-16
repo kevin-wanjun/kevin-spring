@@ -16,28 +16,8 @@
 
 package org.springframework.beans.factory.xml;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import groovy.json.JsonBuilder;
-import groovy.json.JsonParser;
-import groovy.json.internal.BaseJsonParser;
-import groovy.json.internal.JsonParserUsingCharacterSource;
-import groovy.json.internal.JsonStringDecoder;
-import jdk.nashorn.internal.parser.JSONParser;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.ListFactoryBean;
@@ -47,11 +27,12 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.tests.sample.beans.HasMap;
+import org.springframework.tests.sample.beans.ITestBean;
 import org.springframework.tests.sample.beans.TestBean;
 
+import java.util.*;
+
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for collections in XML bean definitions.
@@ -94,9 +75,12 @@ public class XmlBeanCollectionTests {
 	@Test
 	public void testRefSubelement() throws Exception {
 		//assertTrue("5 beans in reftypes, not " + this.beanFactory.getBeanDefinitionCount(), this.beanFactory.getBeanDefinitionCount() == 5);
-		TestBean jen = (TestBean) this.beanFactory.getBean("jenny");
-		TestBean dave = (TestBean) this.beanFactory.getBean("david");
-		assertTrue(jen.getSpouse() == dave);
+		TestBean jenny = (TestBean) this.beanFactory.getBean("jenny1");
+		System.out.println(jenny.getSpouse() == jenny.getSpouse());
+
+
+
+		TestBean david = (TestBean) this.beanFactory.getBean("david2");
 	}
 
 	@Test

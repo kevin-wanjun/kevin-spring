@@ -278,7 +278,7 @@ public class ContextLoader {
 		try {
 			// Store context in local instance variable, to guarantee that
 			// it is available on ServletContext shutdown.
-			//创建WebApplicationContex
+			//创建WebApplicationContext
 			if (this.context == null) {
 				//最终得到的是XmlWebApplicationContext
 				this.context = createWebApplicationContext(servletContext);

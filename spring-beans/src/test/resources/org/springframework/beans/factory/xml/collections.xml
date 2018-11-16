@@ -1,14 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
 
-	<bean id="jenny" name="123" class="org.springframework.tests.sample.beans.TestBean">
-
+	<!--<bean id="jenny" class="org.springframework.tests.sample.beans.TestBean" depends-on="rod">-->
+	<bean id="jenny1" class="org.springframework.tests.sample.beans.TestBean">
+		<property name="name"><value>Jenny</value></property>
+		<property name="age"><value>30</value></property>
+		<property name="spouse">
+			<!-- Could use id and href -->
+			<ref bean="david2"/>
+		</property>
 	</bean>
 
-	<bean id="david" class="org.springframework.tests.sample.beans.TestBean">
+	<bean id="david2" class="org.springframework.tests.sample.beans.TestBean" scope="prototype">
+		<description>
+			Simple bean, without any collections.
+		</description>
+		<property name="name">
+			<description>The name of the user</description>
+			<value>David</value>
+		</property>
+		<property name="age"><value>27</value></property>
+	</bean>
 
+	<bean id="rod" class="org.springframework.tests.sample.beans.TestBean">
+		<property name="name"><value>Rod</value></property>
+		<property name="age"><value>32</value></property>
 	</bean>
 
 	<!--<bean id="rod" class="org.springframework.tests.sample.beans.TestBean">
@@ -125,15 +143,15 @@
 					<value type="java.lang.Integer">10</value>
 				</entry>
 				<entry>
- 					<key>
+					<key>
 						<ref bean="jennyKey"/>
 					</key>
 					<ref bean="jenny"/>
 				</entry>
 				<entry>
- 					<key>
- 						<bean class="java.lang.Integer">
- 							<constructor-arg value="5"/>
+					<key>
+						<bean class="java.lang.Integer">
+							<constructor-arg value="5"/>
 						</bean>
 					</key>
 					<idref bean="david"/>

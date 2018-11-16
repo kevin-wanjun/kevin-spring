@@ -150,6 +150,9 @@ public class BeanDefinitionReaderUtils {
 
 		// 以beanName作为唯一标识进行注册
 		String beanName = definitionHolder.getBeanName();
+		/**
+		 * {@link GenericBeanDefinition#regis}
+		 */
 		registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());
 
 		// 建立alias与beanName之间的映射关系

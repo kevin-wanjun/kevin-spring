@@ -129,7 +129,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		//专门处理解析
 		BeanDefinitionParserDelegate parent = this.delegate;
 		/**
-		 * 解析bean 委委托给{@link BeanDefinitionParserDelegate}处理
+		 * 解析bean 委托给{@link BeanDefinitionParserDelegate}处理
 		 */
 		this.delegate = createDelegate(getReaderContext(), root, parent);
 

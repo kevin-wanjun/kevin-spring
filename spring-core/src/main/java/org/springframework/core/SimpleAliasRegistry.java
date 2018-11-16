@@ -80,7 +80,8 @@ public class SimpleAliasRegistry implements AliasRegistry {
 								registeredName + "' with new target name '" + name + "'");
 					}
 				}
-				// 检测name和alias之间是否构成环路，如果构成环路则抛出异常
+				//检测name和alias之间是否构成环路，如果构成环路则抛出异常
+				//确保添加的没有name和alias值相反的数据且alias和name不相等
 				checkForAliasCircle(name, alias);
 				// 不存在环路，直接注册，建立alias与name之间的映射关系
 				this.aliasMap.put(alias, name);

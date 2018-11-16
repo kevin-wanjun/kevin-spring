@@ -23,7 +23,7 @@ import org.springframework.lang.Nullable;
  * 这个要与我们本节所讨论的 BeanFactory 相区分开来，虽然两者在名字上很相似，但却是完全不同的两个类。
  * BeanFactory 以 Factory 结尾，所以它是一个工厂，用来管理 bean 对象，而 FactoryBean 则以 Bean 结尾，
  * 说明它本质上还是一个 bean，只是比我们通常所见的 bean 稍微特殊了一点。
- * FactoryBean 在实际开发中笔者用的并不是很多，这个主要是用来构造一些复杂对象，如果一个对象的配置十分复杂，
+ * FactoryBean 在实际开发中用的可能并不是很多，这个主要是用来构造一些复杂对象，如果一个对象的配置十分复杂，
  * 那么此时通过编码实现可能是更好的选择。
  * @author Rod Johnson
  * @author Juergen Hoeller
