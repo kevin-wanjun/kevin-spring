@@ -23,6 +23,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.ResourceEntityResolver;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 
+
 /**
  * {@link org.springframework.web.context.WebApplicationContext} implementation
  * which takes its configuration from XML documents, understood by an
@@ -61,17 +62,28 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
  */
 public class XmlWebApplicationContext extends AbstractRefreshableWebApplicationContext {
 
-	/** Default config location for the root context */
+	/**
+	 * Default config location for the root context
+	 * 如果不特别指定配置文件的文职，Ioc 容器会默认从这里读取BeanDefinition来初始化Ioc容器
+	 */
 	public static final String DEFAULT_CONFIG_LOCATION = "/WEB-INF/applicationContext.xml";
 
-	/** Default prefix for building a config location for a namespace */
+	/**
+	 * Default prefix for building a config location for a namespace
+	 * 默认的配置文件位置在/WEB-INF/目录下
+	 */
 	public static final String DEFAULT_CONFIG_LOCATION_PREFIX = "/WEB-INF/";
 
-	/** Default suffix for building a config location for a namespace */
+	/**
+	 * Default suffix for building a config location for a namespace
+	 * 磨人的配置文件后缀名
+	 */
 	public static final String DEFAULT_CONFIG_LOCATION_SUFFIX = ".xml";
 
 
 	/**
+	 *
+	 * 容器refresh启动
 	 * Loads the bean definitions via an XmlBeanDefinitionReader.
 	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
 	 * @see #initBeanDefinitionReader

@@ -116,20 +116,26 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 
 
 	/**
-	 * This implementation performs an actual refresh of this context's underlying
-	 * bean factory, shutting down the previous bean factory (if any) and
-	 * initializing a fresh bean factory for the next phase of the context's lifecycle.
+	 * 在这个方法中创建了 BeanFactory ,再穿件Ioc容器前，如果已经有容器存在，那么需要把已有的容器销毁和关闭，
+	 * 保证在refresh()以后使用的实行建立起来的Ioc容器。这么看来，这个refresh非常像重启动容器，在建立好当前的Ioc容器以后，
+	 * 开始对容器的初始化过程，比如BeanDefinition 的载入
 	 */
 	@Override
 	protected final void refreshBeanFactory() throws BeansException {
+		// 这里判断，如果已经建立了 BeanFactory，则销毁并关闭该 BeanFactory
 		if (hasBeanFactory()) {
 			destroyBeans();
+			//销毁该BeanFactory
 			closeBeanFactory();
 		}
+		//这里是创建并设置持有的 DefaultListableBeanFactory 的地方同时调用 loadBeanDefinitions
+		//在载入 BeanDefinition的信息
 		try {
+			//创建Ioc容器，这里使用的是 DefaultListableBeanFactory
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
 			beanFactory.setSerializationId(getId());
 			customizeBeanFactory(beanFactory);
+			//启动对 BeanDefinition 的载入
 			loadBeanDefinitions(beanFactory);
 			synchronized (this.beanFactoryMonitor) {
 				this.beanFactory = beanFactory;
@@ -160,8 +166,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	}
 
 	/**
-	 * Determine whether this context currently holds a bean factory,
-	 * i.e. has been refreshed at least once and not been closed yet.
+	 * 判断 beanFactory 是否被创建
 	 */
 	protected final boolean hasBeanFactory() {
 		synchronized (this.beanFactoryMonitor) {
@@ -189,6 +194,10 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	}
 
 	/**
+	 * 这就是在上下文中创建DefaultListableBeanFactory 的地方，而getInternalParentBeanFactory()的具体实现
+	 * 可以参考 AbstractApplicationContext 中的实现，会根据容器已有的Ioc容器的信息来生成
+	 * DefaultListableBeanFactory 的双亲Ioc容器
+	 *
 	 * Create an internal bean factory for this context.
 	 * Called for each {@link #refresh()} attempt.
 	 * <p>The default implementation creates a
@@ -203,6 +212,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * @see org.springframework.beans.factory.support.DefaultListableBeanFactory#setAllowRawInjectionDespiteWrapping
 	 */
 	protected DefaultListableBeanFactory createBeanFactory() {
+		//创建容器并指定父容器，父容器可以是null
 		return new DefaultListableBeanFactory(getInternalParentBeanFactory());
 	}
 
@@ -230,6 +240,10 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	}
 
 	/**
+	 * 这里是使用BeanDefinitionReader 载入Bean定义的地方，
+	 * 因为允许有多种载入方式，虽然用的最多的是 xml定义的形式
+	 * 这里用火一个抽象函数把具体的实现委托给子类来完成
+	 *
 	 * Load bean definitions into the given bean factory, typically through
 	 * delegating to one or more bean definition readers.
 	 * @param beanFactory the bean factory to load bean definitions into

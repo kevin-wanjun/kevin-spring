@@ -35,16 +35,8 @@ import javax.servlet.ServletContextListener;
  * @see org.springframework.web.WebApplicationInitializer
  *
  *
- *
  * ContextLoaderListener实现了ServletContextListener接口，ServletContextListener是Java EE标准接口之一，
  * 类似tomcat，jetty的java容器启动时便会触发该接口的contextInitialized。
- *
- *
- *
- *
- *
- *
- *
  *
  *
  *
@@ -111,11 +103,20 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
 
 
 	/**
-	 * Initialize the root web application context.
+	 * 重写 ServletContextListener 的方法，让web容器在启动时，加载对应的信息
+	 * @param event  ServletContextEvent  web 容器运行的怎个上下文
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent event) {
-		//在父类ContextLoader中实现
+		/**
+		 * 初始化 {@link WebApplicationContext}
+		 * 这里涉及了一个常用类 WebApplicationContext:
+		 * 在 Web 应用中，我们会用到 WebApplicationContext,WebApplicationContext 继承自ApplicationContext,
+		 * 在 {@link  org.springframework.context.ApplicationContext}
+		 * 的基础上又追加了一些特定于 Web 的属性及操作，非常类似于我们通过编程方式使用 Spring
+		 * 时的ClassPathXmlApplicationContext 类提供的功能。
+		 * 在父类{@link ContextLoader}中实现
+		 */
 		initWebApplicationContext(event.getServletContext());
 	}
 

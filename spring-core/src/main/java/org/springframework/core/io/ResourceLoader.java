@@ -46,6 +46,9 @@ public interface ResourceLoader {
 
 
 	/**
+	 * 对于取得Resource的具体过程，我们可以看看
+	 * {@link DefaultResourceLoader#getResource(String)}是怎么样完成的
+	 *
 	 * Return a Resource handle for the specified resource location.
 	 * <p>The handle should always be a reusable resource descriptor,
 	 * allowing for multiple {@link Resource#getInputStream()} calls.

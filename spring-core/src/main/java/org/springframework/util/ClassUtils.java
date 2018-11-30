@@ -1176,10 +1176,13 @@ public abstract class ClassUtils {
 				count++;
 			}
 		}
+		//返回当前对象表示的类或接口的所有接口实现（不包括父类或者实现接口的接口）
 		Class<?>[] ifcs = clazz.getInterfaces();
+		//处理当前类继承的接口的方法
 		for (Class<?> ifc : ifcs) {
 			count += getMethodCountForName(ifc, methodName);
 		}
+		//返回当前class继承的父类，并处理父类中方法
 		if (clazz.getSuperclass() != null) {
 			count += getMethodCountForName(clazz.getSuperclass(), methodName);
 		}

@@ -306,7 +306,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 
 	/**
-	 * Load bean definitions from the specified XML file.
+	 * 从指定的XML文件加载bean定义。
 	 * @param resource the resource descriptor for the XML file
 	 * @return the number of bean definitions found
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
@@ -317,7 +317,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	}
 
 	/**
-	 * Load bean definitions from the specified XML file.
+	 * 载入 xml 形式的 BeanDefinition
 	 * @param encodedResource the resource descriptor for the XML file,
 	 * allowing to specify an encoding to use for parsing the file
 	 * @return the number of bean definitions found
@@ -402,7 +402,15 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 
 	/**
-	 * Actually load bean definitions from the specified XML file.
+	 * BeanDefinition 的载入分成两部分，首先通过调用 XML 的解析器得到document 对象，但这些document对象并没有按照Spring的Bean
+	 * 规则进行解析。在完成XML通用的解析以后，才是按照Spring的Bean规则进行解析的地方，这个按照Spring的Bean规则进行解析的过程
+	 * 是在documentReader中实现的。这里使用的documentReader是默认设置好的 {@link DefaultBeanDefinitionDocumentReader}。
+	 * 这个DefaultBeanDefinitionDocumentReader 的创建是在后面的方法中完成的，然后在完成 BeanDefinition 的处理，
+	 * 处理结果由{@link org.springframework.beans.factory.config.BeanDefinitionHolder} 对象来持有。这个BeanDefinitionHolder
+	 * 除了持有 BeanDefinition 对象外，还持有其他与 BeanDefinition 的使用相关信息，比如 Bean 的名字、别名集合等。
+	 * 这个BeanDefinitionHolder的生成是通过对Document 文档书的内容进行解析来完成的，可以看到这个解析过程是有
+	 * {@link BeanDefinitionParserDelegate} 来实现的具体方法为
+	 *
 	 * @param inputSource the SAX InputSource to read from
 	 * @param resource the resource descriptor for the XML file
 	 * @return the number of bean definitions found
@@ -413,9 +421,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	protected int doLoadBeanDefinitions(InputSource inputSource, Resource resource)
 			throws BeanDefinitionStoreException {
 		try {
-			//加载 xml 获取 document对象
+			//加载 xml 获取 document对象,
 			Document doc = doLoadDocument(inputSource, resource);
-			//注册 bean
+			//这里启动的是对 BeanDefinition 解析的详细过程，这个解析会使用到Spring Bean 的配置规则
 			return registerBeanDefinitions(doc, resource);
 		}
 		catch (BeanDefinitionStoreException ex) {

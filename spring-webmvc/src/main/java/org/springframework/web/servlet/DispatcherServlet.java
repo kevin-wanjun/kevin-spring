@@ -935,7 +935,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	}
 
 	/**
-	 * Process the actual dispatching to the handler.
+	 * 前端控制器分派方法
 	 * <p>The handler will be obtained by applying the servlet's HandlerMappings in order.
 	 * The HandlerAdapter will be obtained by querying the servlet's installed HandlerAdapters
 	 * to find the first that supports the handler class.
@@ -957,17 +957,18 @@ public class DispatcherServlet extends FrameworkServlet {
 			Exception dispatchException = null;
 
 			try {
+				//检查是否是请求是否是multipart（如文件上传），如果是将通过MultipartResolver解析
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
 
-				// Determine handler for the current request.
+				//步骤2、请求到处理器（页面控制器）的映射，通过HandlerMapping进行映射
 				mappedHandler = getHandler(processedRequest);
 				if (mappedHandler == null) {
 					noHandlerFound(processedRequest, response);
 					return;
 				}
 
-				// Determine handler adapter for the current request.
+				//步骤3、处理器适配，即将我们的处理器包装成相应的适配器（从而支持多种类型的处理器）
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
 				// Process last-modified header, if supported by the handler.
@@ -987,7 +988,13 @@ public class DispatcherServlet extends FrameworkServlet {
 					return;
 				}
 
-				// Actually invoke the handler.
+				/*
+				 * 304 Not Modified缓存支持
+				 * 此处省略具体代码
+				 * 执行处理器相关的拦截器的预处理（HandlerInterceptor.preHandle）
+				 * 此处省略具体代码
+				 * 步骤4、由适配器执行处理器（调用处理器相应功能处理方法）
+				 */
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 
 				if (asyncManager.isConcurrentHandlingStarted()) {

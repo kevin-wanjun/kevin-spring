@@ -270,6 +270,12 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 		}
 	}
 
+	/**
+	 *
+	 * @param tokens
+	 * @param pv
+	 * @throws BeansException
+	 */
 	protected void setPropertyValue(PropertyTokenHolder tokens, PropertyValue pv) throws BeansException {
 		if (tokens.keys != null) {
 			processKeyedProperty(tokens, pv);

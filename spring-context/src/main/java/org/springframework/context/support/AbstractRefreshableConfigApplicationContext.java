@@ -39,6 +39,7 @@ import org.springframework.util.StringUtils;
 public abstract class AbstractRefreshableConfigApplicationContext extends AbstractRefreshableApplicationContext
 		implements BeanNameAware, InitializingBean {
 
+	/**ContextLoaderListener 配置的加载文件*/
 	@Nullable
 	private String[] configLocations;
 

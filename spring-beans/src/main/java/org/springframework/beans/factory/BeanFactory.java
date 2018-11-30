@@ -134,7 +134,7 @@ public interface BeanFactory {
 	boolean isSingleton(String name) throws NoSuchBeanDefinitionException;
 
 	/**
-	 * 是不是原型对象
+	 * 是不是原型对象（每次获取bean对象都是重新创建）
 	 * @param name the name of the bean to query
 	 * @return whether this bean will always deliver independent instances
 	 * @throws NoSuchBeanDefinitionException if there is no bean with the given name

@@ -198,6 +198,8 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 
 	/**
 	 * 解析xml中的根级元素 如:"import", "alias", "bean".
+	 *
+	 *
 	 * @param ele xml中的根级元素 如:"import", "alias", "bean".
 	 * @param delegate
 	 */
@@ -318,17 +320,23 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 
 	/**
 	 * 解析 bean 标签
+	 * 处理BeanDefinition定义的地方，具体的处理委托给 {@link BeanDefinitionParserDelegate} 来完成
 	 * @param ele 这里指 <bean> 标签
 	 * @param delegate {@link BeanDefinitionParserDelegate}
 	 */
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
-		// 1. 解析bean元素的属性：id, name, alias, class
+		/**
+		 * 1. 解析bean元素的属性：id, name, alias, class
+		 * BeanDefinitionHolder 是 BeanDefinition 对象的封装类，封装可 BeanDefinition,Bean的名字和别名。用它来完成向Ioc容器注册。
+		 * 得到这和 BeanDefinitionHolder 就意味着BeanDefinition 是通过 BeanDefinitionParserDelegate 对XML元素的信息按照 Spring的
+		 * Bean定义规则解析的。
+		 */
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
 		if (bdHolder != null) {
 			// 2. 如果默认标签下有自定义标签，则进行解析(这里不做)
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
-				// 3. 注册解析得到的 BeanDefinitionHolder
+				// 3. 这里是向Ioc容器注册解析得到的 BeanDefinitionHolder的地方
 				BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
 			}
 			catch (BeanDefinitionStoreException ex) {

@@ -76,6 +76,7 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 	}
 
 	/**
+	 * 这个构造函数的 configLocation 包含的是 BeanDefinition 所在文件的路径
 	 * Create a new FileSystemXmlApplicationContext, loading the definitions
 	 * from the given XML file and automatically refreshing the context.
 	 * @param configLocation file path
@@ -86,6 +87,7 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 	}
 
 	/**
+	 * 这个构造函数允许 configLocation 包含多个 BeanDefinition 的文件路径
 	 * Create a new FileSystemXmlApplicationContext, loading the definitions
 	 * from the given XML files and automatically refreshing the context.
 	 * @param configLocations array of file paths
@@ -96,6 +98,7 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 	}
 
 	/**
+	 * 这个构造函数在允许 configLocation 包含多个 BeanDefinition 的文件路径的同时，还允许指定自己的双亲容器
 	 * Create a new FileSystemXmlApplicationContext with the given parent,
 	 * loading the definitions from the given XML files and automatically
 	 * refreshing the context.
@@ -122,8 +125,7 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 	}
 
 	/**
-	 * Create a new FileSystemXmlApplicationContext with the given parent,
-	 * loading the definitions from the given XML files.
+	 * 在对象的初始化过程中，调用 refresh 函数载入 beanDefinition， 这个refresh 启动了 BeanDefinition 的载入过程
 	 * @param configLocations array of file paths
 	 * @param refresh whether to automatically refresh the context,
 	 * loading all bean definitions and creating all singletons.
@@ -138,6 +140,7 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 
 		super(parent);
 		setConfigLocations(configLocations);
+		//这里调用容器 refresh ，是载入BeanDefinition 的入口
 		if (refresh) {
 			refresh();
 		}
@@ -145,7 +148,9 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 
 
 	/**
-	 * Resolve resource paths as file system paths.
+	 * 这是应用文件系统中 Resource 的实现，通过构造一个FileSystemResource 来得到一个在文件系统中定位的 BeanDefinition
+	 * 这个getResourceByPath 实在 BeanDefinitionReader 的loadBeanDefinition 中被调用的
+	 * loadBeanDefinition 采用了模板模式，具体的定位实现实际上由各个子类来完成的
 	 * <p>Note: Even if a given path starts with a slash, it will get
 	 * interpreted as relative to the current VM working directory.
 	 * This is consistent with the semantics in a Servlet container.

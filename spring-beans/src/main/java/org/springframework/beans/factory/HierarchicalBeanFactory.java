@@ -34,14 +34,17 @@ import org.springframework.lang.Nullable;
 public interface HierarchicalBeanFactory extends BeanFactory {
 
 	/**
-	 * Return the parent bean factory, or {@code null} if there is none.
+	 *  返回本Bean工厂的父工厂。这个方法实现了工厂的分层。
+	 *  提供父容器的访问功能.至于父容器的设置,
+	 *  需要找{@link org.springframework.beans.factory.config.ConfigurableBeanFactory#setParentBeanFactory(BeanFactory)}
+	 *  (接口把设置跟获取给拆开了!).
+	 *  @return BeanFactory 当前工厂的父工厂
 	 */
 	@Nullable
 	BeanFactory getParentBeanFactory();
 
 	/**
-	 * Return whether the local bean factory contains a bean of the given name,
-	 * ignoring beans defined in ancestor contexts.
+	 * 判断本地工厂是否包含这个Bean（忽略其他所有父工厂）。这也是分层思想的体现。
 	 * <p>This is an alternative to {@code containsBean}, ignoring a bean
 	 * of the given name from an ancestor bean factory.
 	 * @param name the name of the bean to query

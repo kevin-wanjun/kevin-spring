@@ -53,7 +53,7 @@ public abstract class BeanFactoryUtils {
 
 
 	/**
-	 * Return whether the given name is a factory dereference
+	 * 验证字符串是否已 & 开头 用于检测是否是 FactoryBean
 	 * (beginning with the factory dereference prefix).
 	 * @param name the name of the bean
 	 * @return whether the given name is a factory dereference
@@ -61,6 +61,10 @@ public abstract class BeanFactoryUtils {
 	 */
 	public static boolean isFactoryDereference(@Nullable String name) {
 		return (name != null && name.startsWith(BeanFactory.FACTORY_BEAN_PREFIX));
+	}
+
+	public static void main(String[] args) {
+		System.out.println(isFactoryDereference("s"));
 	}
 
 	/**

@@ -512,44 +512,54 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		return this.applicationListeners;
 	}
 
+	/**
+	 * refresh方法的实现类是抽象类AbstractApplicationContext，继承了ConfigurableApplicationContext等接口。
+	 * AbstractApplicationContext采用模板方法模式，把一部分实现推迟到子类。refresh方法同样是一个模板方法。
+	 *
+	 * 下面我们先总体了解一下refresh方法的内容。大体来说，refresh方法的作用是创建加载Spring IOC容器相关配置，是IOC的入口。
+	 * 在创建IOC容器前，如果已经有容器存在，则需要把已有的容器销毁和关闭，以保证在refresh之后使用的是新建立起来的IoC容器。
+	 * refresh的作用类似于对IoC容器的重启，在新建立好的容器中对容器进行初始化，对Bean定义资源进行载入
+	 * @throws BeansException
+	 * @throws IllegalStateException
+	 */
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
 			// Prepare this context for refreshing.
 			prepareRefresh();
 
-			// Tell the subclass to refresh the internal bean factory.
+			//这里实在子类中启动 refreshBeanFactory() 的方法
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
 			prepareBeanFactory(beanFactory);
 
 			try {
-				// Allows post-processing of the bean factory in context subclasses.
+				// 设置 BeanFactory 的后置处理
 				postProcessBeanFactory(beanFactory);
 
-				// Invoke factory processors registered as beans in the context.
+				// 调用 BeanFactory 的后处理器，这些后处理器是在Bean 定义中向容器注册的
 				invokeBeanFactoryPostProcessors(beanFactory);
 
-				// Register bean processors that intercept bean creation.
+				// 注册Bean 的后处理器，在Bean 创建过程中调用
 				registerBeanPostProcessors(beanFactory);
 
-				// Initialize message source for this context.
+				// 对上戏文中的消息源进行初始化
 				initMessageSource();
 
-				// Initialize event multicaster for this context.
+				// 初始化上下文中的事件机智
 				initApplicationEventMulticaster();
 
-				// Initialize other special beans in specific context subclasses.
+				// 初始化其他的特殊Bean
 				onRefresh();
 
-				// Check for listener beans and register them.
+				// 检查监听Bean并且将这些Bean 向容器注册
 				registerListeners();
 
-				// Instantiate all remaining (non-lazy-init) singletons.
+				// 实例化所有的(non-lazy-init) 事件
 				finishBeanFactoryInitialization(beanFactory);
 
-				// Last step: publish corresponding event.
+				// 发布容器事件，结束Refresh过程
 				finishRefresh();
 			}
 
@@ -559,10 +569,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 							"cancelling refresh attempt: " + ex);
 				}
 
-				// Destroy already created singletons to avoid dangling resources.
+				//为防止Bean资源占用，在异常处理中，销毁已经在前面过程中生成的单例Bean
 				destroyBeans();
 
-				// Reset 'active' flag.
+				//重置 'active' 标志
 				cancelRefresh(ex);
 
 				// Propagate exception to caller.
@@ -578,10 +588,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
-	 * Prepare this context for refreshing, setting its startup date and
-	 * active flag as well as performing any initialization of property sources.
+	 * 调用容器准备刷新的方法，获取容器的当时时间，同时给容器设置同步标识。
+	 * initPropertySources()方法由抽象子类AbstractRefreshableApplicationContext实现。
 	 */
 	protected void prepareRefresh() {
+		//
 		this.startupDate = System.currentTimeMillis();
 		this.closed.set(false);
 		this.active.set(true);
@@ -590,11 +601,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			logger.info("Refreshing " + this);
 		}
 
-		// Initialize any placeholder property sources in the context environment
+		// 初始化上下文环境的占位符值等信息（由子类实现）
 		initPropertySources();
 
 		// Validate that all properties marked as required are resolvable
 		// see ConfigurablePropertyResolver#setRequiredProperties
+		//判断环境中必须包含的配置文件是否存在
 		getEnvironment().validateRequiredProperties();
 
 		// Allow for the collection of early ApplicationEvents,
@@ -618,6 +630,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see #getBeanFactory()
 	 */
 	protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
+		/**
+		 * 由子类实现,这里主要看
+		 * {@link AbstractRefreshableApplicationContext#refreshBeanFactory()} )
+		 */
 		refreshBeanFactory();
 		ConfigurableListableBeanFactory beanFactory = getBeanFactory();
 		if (logger.isDebugEnabled()) {
@@ -1246,8 +1262,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
-	 * Return the internal bean factory of the parent context if it implements
-	 * ConfigurableApplicationContext; else, return the parent context itself.
+	 * 返回父容器
 	 * @see org.springframework.context.ConfigurableApplicationContext#getBeanFactory
 	 */
 	@Nullable

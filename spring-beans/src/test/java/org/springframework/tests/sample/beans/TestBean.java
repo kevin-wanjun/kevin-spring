@@ -109,6 +109,7 @@ public class TestBean implements BeanNameAware, BeanFactoryAware, ITestBean, IOt
 
 
 	public TestBean() {
+		System.out.println("--------------------注册------------------------------------");
 	}
 
 	public TestBean(String name) {
