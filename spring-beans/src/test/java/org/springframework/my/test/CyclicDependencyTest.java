@@ -37,10 +37,6 @@ public class CyclicDependencyTest {
         System.out.println(b.toString());
         CyclicDependencyC c  = (CyclicDependencyC) beanFactory.getBean("cyclicDependencyC");
         System.out.println(c.toString());
-
-
-        Car car  = (Car) beanFactory.getBean("&car");
-        System.out.println(car.toString());
     }
 
 }

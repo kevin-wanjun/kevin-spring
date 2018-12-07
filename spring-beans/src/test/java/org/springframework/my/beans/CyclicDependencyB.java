@@ -11,7 +11,6 @@ public class CyclicDependencyB {
 
     private String name = "B";
 
-    @Autowired
     private CyclicDependencyC cyclicDependencyC;
 
     public String getName() {

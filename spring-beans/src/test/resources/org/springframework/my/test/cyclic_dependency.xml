@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+
+	<bean id="cyclicDependencyA" class="org.springframework.my.beans.CyclicDependencyA">
+		<property name="cyclicDependencyB" ref="cyclicDependencyB"/>
+	</bean>
+
+	<bean id="cyclicDependencyB" class="org.springframework.my.beans.CyclicDependencyB">
+		<property name="cyclicDependencyC" ref="cyclicDependencyC"/>
+	</bean>
+
+	<bean id="cyclicDependencyC" class="org.springframework.my.beans.CyclicDependencyC">
+		<property name="cyclicDependencyA" ref="cyclicDependencyA"/>
+	</bean>
+
+	<bean id="&amp;car" class="org.springframework.my.beans.Car">
+	</bean>
+
+</beans>

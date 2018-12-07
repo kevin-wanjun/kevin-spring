@@ -8,13 +8,11 @@ import org.springframework.stereotype.Component;
  * @date 2018-12-05
  * @description 循环依赖bean A 
  ******************************************************************************/
-@Component
 public class CyclicDependencyA {
 
 
     private String name = "A";
 
-    @Autowired
     private CyclicDependencyB cyclicDependencyB;
 
 
