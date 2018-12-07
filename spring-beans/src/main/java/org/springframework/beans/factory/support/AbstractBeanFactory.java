@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeansException;
@@ -104,8 +105,8 @@ import org.springframework.util.StringValueResolver;
  * @author Costin Leau
  * @author Chris Beams
  * @since 15 April 2001
- * @see #getBeanDefinition
  * @see #createBean
+ * @see #getBeanDefinition
  * @see AbstractAutowireCapableBeanFactory#createBean
  * @see DefaultListableBeanFactory#getBeanDefinition
  */
@@ -1629,6 +1630,31 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		return !this.alreadyCreated.isEmpty();
 	}
 
+	public static void main(String[] args) {
+		String name = "car";
+		FactoryBean beanInstance = new FactoryBean() {
+			@Nullable
+			@Override
+			public Object getObject() throws Exception {
+				return null;
+			}
+
+			@Nullable
+			@Override
+			public Class<?> getObjectType() {
+				return null;
+			}
+		};
+
+		beanInstance = null;
+
+		System.out.println(!(beanInstance instanceof FactoryBean));
+		System.out.println(BeanFactoryUtils.isFactoryDereference(name));
+		if (!(beanInstance instanceof FactoryBean) || BeanFactoryUtils.isFactoryDereference(name)) {
+			System.out.println("sss");
+		}
+	}
+
 	/**
 	 * Get the object for the given bean instance, either the bean
 	 * instance itself or its created object in case of a FactoryBean.
@@ -1652,19 +1678,20 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 		}
 
-		// 如果beanInstance不是FactoryBean类型，或者是以&开头，说明是一个普通的Bean，直接返回
+		//如果beanInstance 没有实现 FactoryBean 接口并且是以&开头,说明还是一个普通的Bean，直接返回
 		if (!(beanInstance instanceof FactoryBean) || BeanFactoryUtils.isFactoryDereference(name)) {
 			return beanInstance;
 		}
 
-		//以下步骤处理以&开头的name，即FactoryBean
+		//以下步骤处理以&开头的name -> 其实这里根据上面的逻辑已经明确知道了 beanInstance 一定是 FactoryBean类型
 		Object object = null;
 		if (mbd == null) {
-			//尝试从缓存中加载bean
+			//尝试从缓存中加载bean，beanInstance.getObject()方法被调用过一次,
+			// 并且 beanInstance.isSingleton 为true 即为单例
 			object = getCachedObjectForFactoryBean(beanName);
 		}
+		//缓存中没有取到
 		if (object == null) {
-			// 到了这里已经明确知道了 beanInstance 一定是 FactoryBean类型
 			FactoryBean<?> factory = (FactoryBean<?>) beanInstance;
 			//containsBeanDefinition 检测 beanDefinitionMap中也就是在所有以加载的类中检测是否定义beanName
 			//将存储XML配置文件的GernericBeanDefinition转换成RootBeanDefinition

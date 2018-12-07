@@ -13,7 +13,7 @@
 		</property>
 	</bean>
 
-	<bean id="david2" class="org.springframework.tests.sample.beans.TestBean" scope="prototype">
+	<bean id="david2" class="org.springframework.tests.sample.beans.TestBean">
 		<description>
 			Simple bean, without any collections.
 		</description>
@@ -24,10 +24,10 @@
 		<property name="age"><value>27</value></property>
 	</bean>
 
-	<bean id="rod" class="org.springframework.tests.sample.beans.TestBean">
+<!--	<bean id="rod" class="org.springframework.tests.sample.beans.TestBean">
 		<property name="name"><value>Rod</value></property>
 		<property name="age"><value>32</value></property>
-	</bean>
+	</bean>-->
 
 	<!--<bean id="rod" class="org.springframework.tests.sample.beans.TestBean">
 		<property name="name"><value>Rod</value></property>

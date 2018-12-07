@@ -35,7 +35,7 @@ import org.springframework.lang.Nullable;
 public interface FactoryBean<T> {
 
 	/**
-	 * 获取由 FactoryBean 创建的目标 bean 实例
+	 * 返回由FactoryBean 创建的 bean 实例，如果 isSingleton()返回 true,则该实例会放到Spring 容器中单例缓存池中
 	 * @return an instance of the bean (can be {@code null})
 	 * @throws Exception in case of creation errors
 	 * @see FactoryBeanNotInitializedException
@@ -44,7 +44,7 @@ public interface FactoryBean<T> {
 	T getObject() throws Exception;
 
 	/**
-	 * 返回目标 bean 类型
+	 * 返回 FactoryBean 创建的 bean 类型
 	 * @return the type of object that this FactoryBean creates,
 	 * or {@code null} if not known at the time of the call
 	 * @see ListableBeanFactory#getBeansOfType
@@ -53,7 +53,7 @@ public interface FactoryBean<T> {
 	Class<?> getObjectType();
 
 	/**
-	 * 是否是单实例
+	 * 返回由 FactoryBean 创建的 bean 实例的作用域是 singleton 还是 prototype
 	 * {@link SmartFactoryBean#isPrototype()} method. Plain {@link FactoryBean}
 	 * implementations which do not implement this extended interface are
 	 * simply assumed to always return independent instances if the
