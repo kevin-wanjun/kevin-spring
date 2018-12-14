@@ -168,30 +168,32 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	}
 
 	/**
-	 * 解析 bean xml中的根级元素 如:"import", "alias", "bean".
 	 * @param root 文档的DOM根元素
 	 */
 	protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
+		//Spring默认的XML命名空间 解析默认标签 (beans 标签)
 		if (delegate.isDefaultNamespace(root)) {
-			//解析默认标签 (beans 标签)
+			//获取根元素的所有子节点
 			NodeList nl = root.getChildNodes();
 			for (int i = 0; i < nl.getLength(); i++) {
 				Node node = nl.item(i);
+				//判断是否是元素节点
 				if (node instanceof Element) {
 					Element ele = (Element) node;
+					//Bean定义的Document的元素节点使用的是Spring默认的XML命名空间
 					if (delegate.isDefaultNamespace(ele)) {
-						// 解析默认标签（子级嵌套）
+						//解析默认标签（子级嵌套）
 						parseDefaultElement(ele, delegate);
 					}
 					else {
-						// 解析自定义标签（子级嵌套）
+						//解析自定义的元素
 						delegate.parseCustomElement(ele);
 					}
 				}
 			}
 		}
+		// 解析自定义标签
 		else {
-			// 解析自定义标签
 			delegate.parseCustomElement(root);
 		}
 	}

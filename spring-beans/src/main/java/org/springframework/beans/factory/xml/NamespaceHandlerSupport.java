@@ -80,7 +80,9 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	 */
 	@Nullable
 	private BeanDefinitionParser findParserForElement(Element element, ParserContext parserContext) {
+		// 根据 element 元素名称，比如 <context:component-scan> 获取之后此时的localName就是component-scan,
 		String localName = parserContext.getDelegate().getLocalName(element);
+		// parsers 容器中的数据，在 NamespaceHandlerSupport子类init方法中被注入
 		BeanDefinitionParser parser = this.parsers.get(localName);
 		if (parser == null) {
 			parserContext.getReaderContext().fatal(

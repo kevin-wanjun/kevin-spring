@@ -4,9 +4,28 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
-	<context:component-scan base-package="kevin.context.beans" >
-		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+	<!--base-package:为必须配置属性,指定了spring需要扫描的跟目录名称,可以使用”,” “;” “\t\n(回车符)”来分割多个包名-->
+	<!--resource-pattern:配置扫描资源格式.默认”**/*.class”-->
+	<!--
+		use-default-filters:是否使用默认扫描策略,默认为”true”,
+		为 true 的话会在 include-filter 容器里面加上
+		Spring 自带的Component 注解类型,
+		JSR-250标准 javax.annotation.ManagedBean 注解类型
+		JSR-330标准 javax.inject.Named 注解类型
+		由于 Controller,Service,Repository这些注解上面使用了 Component 注解，效果便和Component一样
+
+		表示使用这些注解的spring 都回注册当前符合base-package的bean
+	-->
+	<!--
+		当然也可以自己家
+	-->
+	<context:component-scan
+			base-package="kevin.context.beans">
+		<!--<context:include-filter type="annotation" expression="org.springframework.stereotype.Component" />-->
 	</context:component-scan>
 
 
+	<bean id = "chemistry" class="kevin.context.beans.SubjectBean">
+		<property name="subjectName" value="化学"/>
+	</bean>
 </beans>

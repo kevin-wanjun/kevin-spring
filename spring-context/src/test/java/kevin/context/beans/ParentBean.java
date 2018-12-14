@@ -11,15 +11,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class ParentBean {
 
-    @Autowired
-    private ChildBean childBean;
 
     private String name = "parent";
 
     @Override
     public String toString() {
         return "ParentBean{" +
-                "childBean=" + childBean +
                 ", name='" + name + '\'' +
                 '}';
     }

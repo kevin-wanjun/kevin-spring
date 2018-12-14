@@ -272,31 +272,40 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 		return getResourceLoader().getResource(location);
 	}
 
+	/**
+	 * 参考https://blog.csdn.net/zl3450341/article/details/9306983/
+	 * @param locationPattern the location pattern to resolve
+	 * @return
+	 * @throws IOException
+	 */
 	@Override
 	public Resource[] getResources(String locationPattern) throws IOException {
 		Assert.notNull(locationPattern, "Location pattern must not be null");
 		//是否以classpath*开头
 		if (locationPattern.startsWith(CLASSPATH_ALL_URL_PREFIX)) {
 			/**
-			 * 默认使用 {@link org.springframework.util.AntPathMatcher#isPattern}
-			 * 是否包含?或者*
+			 * 去掉 classpath*: 开头后是否包含?或者*
+			 * 使用 {@link org.springframework.util.AntPathMatcher#isPattern}
 			 */
 			if (getPathMatcher().isPattern(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()))) {
-				// 没有使用通配符，加载指定的资源
+				// 使用通配符，加载指定的资源
 				return findPathMatchingResources(locationPattern);
 			}
 			else {
-				// 使用通配符，加载符合条件的资源文件
+				// 不使用通配符，加载符合条件的资源文件
 				return findAllClassPathResources(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()));
 			}
 		}
 		else {
 			// Generally only look for a pattern after a prefix here,
 			// and on Tomcat only after the "*/" separator for its "war:" protocol.
+
+			//如果是以 war: 开头 取 */以后的部分
+			// 否则获取 : 以后的部分 classpath: 如 classpath:spring-mvc-servlet.xml 则  spring-mvc-servlet.xml
 			int prefixEnd = (locationPattern.startsWith("war:")
 					? locationPattern.indexOf("*/") + 1 : locationPattern.indexOf(':') + 1);
+			//检测获取上面之后字符串中是否 包含 ? 或者 *
 			if (getPathMatcher().isPattern(locationPattern.substring(prefixEnd))) {
-				// a file pattern
 				return findPathMatchingResources(locationPattern);
 			}
 			else {
@@ -490,10 +499,15 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 	 * @see org.springframework.util.PathMatcher
 	 */
 	protected Resource[] findPathMatchingResources(String locationPattern) throws IOException {
+		//拿到能确定的根目录，即拿到不包括通配符的能确定的路径
+		// 比如classpath*:/aaa/bbb/spring-*.xml 则返回classpath*:/aaa/bbb/
+		// 比如classpath*:kevin/*/beans/**/*.class  则返回classpath*:kevin/
 		String rootDirPath = determineRootDir(locationPattern);
 		String subPattern = locationPattern.substring(rootDirPath.length());
+		//递归加载所有的根目录资源，要注意的是递归的时候又得考虑classpath,与classpath*的情况，
 		Resource[] rootDirResources = getResources(rootDirPath);
 		Set<Resource> result = new LinkedHashSet<>(16);
+		//将根目录所有资源中所有匹配我们需要的资源(如spring-*)加载result中
 		for (Resource rootDirResource : rootDirResources) {
 			rootDirResource = resolveRootDirResource(rootDirResource);
 			URL rootDirUrl = rootDirResource.getURL();

@@ -30,11 +30,11 @@ public class FactoryBeanTest {
     public void testFactoryBean() throws Exception {
         FactoryBean carFactoryBean = (FactoryBean) beanFactory.getBean("&car");
 
+
+
         Car car = (Car) beanFactory.getBean("car");
 
-         beanFactory.getBean("&car");
 
-         beanFactory.getBean("car");
 
         System.out.println(car.toString());
     }

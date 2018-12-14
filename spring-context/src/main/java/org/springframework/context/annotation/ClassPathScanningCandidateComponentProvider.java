@@ -309,10 +309,12 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 * @return a corresponding Set of autodetected bean definitions
 	 */
 	public Set<BeanDefinition> findCandidateComponents(String basePackage) {
+		//spring5的新特性，跟踪进去会发现是扫描META-INF目录的spring.components 文件是否存在component
 		if (this.componentsIndex != null && indexSupportsIncludeFilters()) {
 			return addCandidateComponentsFromIndex(this.componentsIndex, basePackage);
 		}
 		else {
+			//开始扫描包
 			return scanCandidateComponents(basePackage);
 		}
 	}
@@ -416,8 +418,15 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	private Set<BeanDefinition> scanCandidateComponents(String basePackage) {
 		Set<BeanDefinition> candidates = new LinkedHashSet<>();
 		try {
+			// ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX = "classpath*:";
+			// 通过观察resolveBasePackage()方法的实现, 我们可以在设置basePackage时, 使用形如${}的占位符, Spring会在这里进行替换
+			// this.resourcePattern 默认为 "**/*.class"
 			String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
 					resolveBasePackage(basePackage) + '/' + this.resourcePattern;
+			/**
+			 * @see org.springframework.core.io.support.PathMatchingResourcePatternResolver#getResource(String)
+			 * 通过该方法将匹配的路径的类名，封装成 resource 资源文件
+			 */
 			Resource[] resources = getResourcePatternResolver().getResources(packageSearchPath);
 			boolean traceEnabled = logger.isTraceEnabled();
 			boolean debugEnabled = logger.isDebugEnabled();
@@ -425,8 +434,10 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				if (traceEnabled) {
 					logger.trace("Scanning " + resource);
 				}
+				//是否可以读取资源文件的内容
 				if (resource.isReadable()) {
 					try {
+						// 此处通过 ASM 将class文件读取成元数据模型 ，这里直接读取字节码文件，不涉及到类加载的过程
 						MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
 						if (isCandidateComponent(metadataReader)) {
 							ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);

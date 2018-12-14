@@ -51,7 +51,6 @@ public class XmlBeanCollectionTests {
 		Resource resource = new ClassPathResource("collections.xml", getClass());
 		XmlBeanDefinitionReader xmlBeanDefinitionReader = new XmlBeanDefinitionReader(this.beanFactory);
 		xmlBeanDefinitionReader.loadBeanDefinitions(resource);
-
 	}
 
 
@@ -77,7 +76,6 @@ public class XmlBeanCollectionTests {
 	public void testRefSubelement() throws Exception {
 		//assertTrue("5 beans in reftypes, not " + this.beanFactory.getBeanDefinitionCount(), this.beanFactory.getBeanDefinitionCount() == 5);
 		TestBean jenny = (TestBean) this.beanFactory.getBean("jenny1");
-		System.out.println(jenny.getSpouse() == jenny.getSpouse());
 
 		TestBean david = (TestBean) this.beanFactory.getBean("david2");
 	}

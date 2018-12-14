@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+	<context:component-scan base-package="kevin.context.beans" >
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Component" />
+	</context:component-scan>
+
+	<!--
+	普通应用属性注册
+	-->
+	<bean id="zhangsan" class="kevin.context.beans.StudentBean">
+		<property name="studentName" value="张三"/>
+		<property name="subjectBean" ref="chemistry"/>
+	</bean>
+
+	<bean id = "chemistry" class="kevin.context.beans.SubjectBean">
+		<property name="subjectName" value="化学"/>
+	</bean>
+
+
+
+	<!--
+	使用 sqel 表达式
+	-->
+	<bean id="lisi" class="kevin.context.beans.StudentBean">
+		<property name="studentName" value="李四"/>
+		<property name="subjectBean" value="#{chinese}"/>
+	</bean>
+
+	<bean id = "chinese" class="kevin.context.beans.SubjectBean">
+		<property name="subjectName" value="语文"/>
+	</bean>
+
+</beans>

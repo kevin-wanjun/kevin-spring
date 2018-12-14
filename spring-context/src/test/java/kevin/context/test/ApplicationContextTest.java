@@ -1,35 +1,32 @@
 package kevin.context.test;
 
-import kevin.context.beans.NotBean;
 import kevin.context.beans.ParentBean;
-import kevin.context.beans.SubjectBean;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.BeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 
 /*******************************************************************************
  * @author wj
- * @date 2018-12-05
- * @description 循环依赖测试
+ * @date 2018-12-11
+ * @description ApplicationContext 测试 
  ******************************************************************************/
-public class ParentBeanTest {
+public class ApplicationContextTest {
 
-
-    private  BeanFactory beanFactory;
+    private ApplicationContext applicationContext;
 
 
     @Before
     public void loadBeans() {
-        beanFactory = new ClassPathXmlApplicationContext("cyclic_dependency.xml",getClass());
+        applicationContext = new ClassPathXmlApplicationContext("cyclic_dependency.xml",getClass());
+
+        applicationContext = new ClassPathXmlApplicationContext("cyclic_dependency.xml");
     }
 
 
     @Test
     public void cyclicDependencyTest() throws Exception {
-        ParentBean parentBean = (ParentBean) beanFactory.getBean("parentBean");
-
+        ParentBean parentBean = (ParentBean) applicationContext.getBean("parentBean");
         System.out.println(parentBean);
     }
 
