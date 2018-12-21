@@ -439,10 +439,14 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 					try {
 						// 此处通过 ASM 将class文件读取成元数据模型 ，这里直接读取字节码文件，不涉及到类加载的过程
 						MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
+						// 这个isCandidateComponent就是核心逻辑了,
+						// 上面将class文件内容转换为Resource时, 是将所有的文件都读取进来了
+						// 这显然是不满足我们的要求的, 我们就需要进行相应的过滤
 						if (isCandidateComponent(metadataReader)) {
 							ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 							sbd.setResource(resource);
 							sbd.setSource(resource);
+							// 这里只是判断扫描到的这个类是否可以被实例化, 以及是否是a top-level class or a nested class (static inner class)
 							if (isCandidateComponent(sbd)) {
 								if (debugEnabled) {
 									logger.debug("Identified candidate component class: " + resource);
@@ -499,16 +503,25 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 * @return whether the class qualifies as a candidate component
 	 */
 	protected boolean isCandidateComponent(MetadataReader metadataReader) throws IOException {
+		//除非用户显式配置, 否则默认为空
 		for (TypeFilter tf : this.excludeFilters) {
 			if (tf.match(metadataReader, getMetadataReaderFactory())) {
 				return false;
 			}
 		}
+		/**
+		 * <context:component-scan/> 的"use-default-filters"的属性值默认是true . 这一点可以在configureScanner方法中进行验证
+		 *  于是我们追踪对useDefaultFilters字段的调用来到ClassPathBeanDefinitionScanner的基类ClassPathScanningCandidateComponentProvider中就会发现
+		 *  useDefaultFilters字段为true时,默认会注册{@link ##registerDefaultFilters()}这三个
+		 *  注意
+		 *  与Component注解位于同一个package下的Repository, Controller, Service都被@Component注解所修饰
+		 */
 		for (TypeFilter tf : this.includeFilters) {
 			if (tf.match(metadataReader, getMetadataReaderFactory())) {
 				return isConditionMatch(metadataReader);
 			}
 		}
+		// 注意这里默认返回是false, 也就是说要是通不过includeFilters的条件, 该Bean就不满足要求, 不会进入Spring容器
 		return false;
 	}
 

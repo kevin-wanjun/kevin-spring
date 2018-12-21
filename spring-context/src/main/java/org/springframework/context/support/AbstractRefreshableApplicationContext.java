@@ -118,8 +118,16 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 
 	/**
 	 * 在这个方法中创建了 BeanFactory ,再穿件Ioc容器前，如果已经有容器存在，那么需要把已有的容器销毁和关闭，
-	 * 保证在refresh()以后使用的实行建立起来的Ioc容器。这么看来，这个refresh非常像重启动容器，在建立好当前的Ioc容器以后，
+	 * 保证在refresh()以后使用的实行建立起来的Ioc容器。
+	 * 这么看来，这个refresh非常像重启动容器，在建立好当前的Ioc容器以后，
 	 * 开始对容器的初始化过程，比如BeanDefinition 的载入
+	 *
+	 * 1.创建DefaultListableBeanFactory
+	 * 2.指定序列化ID
+	 * 3.定制BeanFactory
+	 * 4.加载BeanDefinition
+	 * 5.使用全局变量几率BeanFactory类实例
+	 *
 	 */
 	@Override
 	protected final void refreshBeanFactory() throws BeansException {
@@ -134,13 +142,17 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 		try {
 			//创建Ioc容器，这里使用的是 DefaultListableBeanFactory
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
+			//为了序列化指定id,如果需要的话，让这个BeanFactory从id反序列化到BeanFactory对象
 			beanFactory.setSerializationId(getId());
-			//订制 beanFactory，设置相关属性，包括是否允许覆盖同名称的不同定义的对象以及循环依赖
+			//定制 beanFactory，设置相关属性，包括是否允许覆盖同名称的不同定义的对象以及循环依赖
 			customizeBeanFactory(beanFactory);
 			/**
 			 *
 			 * 启动对 BeanDefinition 的载入,初始化 DocumentReader,并进行 XML 文件读取及解析
 			 * @see org.springframework.context.support.AbstractXmlApplicationContext#loadBeanDefinitions(DefaultListableBeanFactory)
+			 * 同时会对 <context:component-scan></context:component-scan> 等等自定义标签完成扫描，实现注解
+			 * BeanDefinitions 的注入封装成 BeanDefinitionHolder 对象
+			 *
 			 */
 			loadBeanDefinitions(beanFactory);
 			synchronized (this.beanFactoryMonitor) {
@@ -223,6 +235,16 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	}
 
 	/**
+	 * 对于允许覆盖和允许依赖的设置这里只是判断了是否为空，如果不为空要进行设置，但是没有看到在哪里进行设置
+	 * 这里使用 ClassPathXmlApplicationContext 子类重写 当前方法即可
+	 * {@code
+	 * 	@Override
+	 * 	protected void customizeBeanFactory(DefaultListableBeanFactory beanFactory) {
+	 * 		super.setAllowBeanDefinitionOverriding(false);
+	 * 		super.setAllowCircularReferences(false);
+	 * 		super.customizeBeanFactory(beanFactory);
+	 * 	}
+	 * }
 	 *
 	 *
 	 * Customize the internal bean factory used by this context.

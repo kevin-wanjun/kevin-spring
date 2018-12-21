@@ -494,6 +494,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		try {
 			//给BeanPostProcessors一个机会去返回一个代理对象而不是目标对象
 			//如果 bean 配置了 postProcessor ，那么这里返回的是一个 proxy 对象
+			//如果配置文件中配置了BeanPostProcessor，则返回一个代理对象。
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
 			if (bean != null) {
 				return bean;
@@ -666,7 +667,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		//注册DisposableBean
 		try {
-			//根据 scopse 注册bean
+			//根据 scope 注册bean
 			registerDisposableBeanIfNecessary(beanName, bean, mbd);
 		}
 		catch (BeanDefinitionValidationException ex) {

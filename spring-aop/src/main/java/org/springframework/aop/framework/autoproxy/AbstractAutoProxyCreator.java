@@ -299,14 +299,57 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	@Override
 	public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) throws BeansException {
 		if (bean != null) {
+			//根据 beanClass 和 beanName 构建一个缓存 bean,如果beanName 不空 null并且不为 空字符创，则用beanClass为 缓存key
+			//否则看 beanClass 是否继承 BeanFactory 接口 是的话 在beanName 前面加上 &，不是直接返回 beanName
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
 			if (!this.earlyProxyReferences.contains(cacheKey)) {
+				//如果它适合做代理，则需要封装指定的bean
 				return wrapIfNecessary(bean, beanName, cacheKey);
 			}
 		}
 		return bean;
 	}
 
+
+	/**
+	 * Wrap the given bean if necessary, i.e. if it is eligible for being proxied.
+	 * @param bean the raw bean instance
+	 * @param beanName the name of the bean
+	 * @param cacheKey the cache key for metadata access
+	 * @return a proxy wrapping the bean, or the raw bean instance as-is
+	 */
+	protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
+		// 如果是声明的需要原始Bean，则直接返回
+		if (StringUtils.hasLength(beanName) && this.targetSourcedBeans.contains(beanName)) {
+			return bean;
+		}
+		// 如果不需要代理，则直接返回
+		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
+			return bean;
+		}
+		// 如果是Proxy的基础组件如Advice、Pointcut、Advisor、AopInfrastructureBean则跳过
+		if (isInfrastructureClass(bean.getClass()) || shouldSkip(bean.getClass(), beanName)) {
+			this.advisedBeans.put(cacheKey, Boolean.FALSE);
+			return bean;
+		}
+
+		// 如果存在增强方法则创建代理
+		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
+		// 如果获取到了增强则需要对增强创建代理
+		if (specificInterceptors != DO_NOT_PROXY) {
+			// 返回不是null，则需要代理
+			this.advisedBeans.put(cacheKey, Boolean.TRUE);
+			//创建代理
+			Object proxy = createProxy(
+					bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
+			// 放入缓存
+			this.proxyTypes.put(cacheKey, proxy.getClass());
+			return proxy;
+		}
+
+		this.advisedBeans.put(cacheKey, Boolean.FALSE);
+		return bean;
+	}
 
 	/**
 	 * Build a cache key for the given bean class and bean name.
@@ -327,39 +370,6 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		else {
 			return beanClass;
 		}
-	}
-
-	/**
-	 * Wrap the given bean if necessary, i.e. if it is eligible for being proxied.
-	 * @param bean the raw bean instance
-	 * @param beanName the name of the bean
-	 * @param cacheKey the cache key for metadata access
-	 * @return a proxy wrapping the bean, or the raw bean instance as-is
-	 */
-	protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
-		if (StringUtils.hasLength(beanName) && this.targetSourcedBeans.contains(beanName)) {
-			return bean;
-		}
-		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
-			return bean;
-		}
-		if (isInfrastructureClass(bean.getClass()) || shouldSkip(bean.getClass(), beanName)) {
-			this.advisedBeans.put(cacheKey, Boolean.FALSE);
-			return bean;
-		}
-
-		// Create proxy if we have advice.
-		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
-		if (specificInterceptors != DO_NOT_PROXY) {
-			this.advisedBeans.put(cacheKey, Boolean.TRUE);
-			Object proxy = createProxy(
-					bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
-			this.proxyTypes.put(cacheKey, proxy.getClass());
-			return proxy;
-		}
-
-		this.advisedBeans.put(cacheKey, Boolean.FALSE);
-		return bean;
 	}
 
 	/**

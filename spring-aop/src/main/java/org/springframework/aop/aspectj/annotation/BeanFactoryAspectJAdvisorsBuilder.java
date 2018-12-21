@@ -44,6 +44,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 
 	private final AspectJAdvisorFactory advisorFactory;
 
+	/**存放有 @Aspect 注解的bean*/
 	@Nullable
 	private volatile List<String> aspectBeanNames;
 
@@ -74,6 +75,11 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 
 
 	/**
+	 * 1.获取所有beanName,这一步骤中所有在 beanFactory 中注册的 Bean 都会被提取出来
+	 * 2.遍历所有 beanName,并找出声明 Aspect 注解的类,进行进一步的处理
+	 * 3.对标记为 Aspect 注解的类进行增强提取
+	 * 4.将提取结果加入缓存
+	 *
 	 * Look for AspectJ-annotated aspect beans in the current bean factory,
 	 * and return to a list of Spring AOP Advisors representing them.
 	 * <p>Creates a Spring Advisor for each AspectJ advice method.
@@ -81,32 +87,51 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 	 * @see #isEligibleBean
 	 */
 	public List<Advisor> buildAspectJAdvisors() {
+		//获取存放有@Aspect注解的bean
 		List<String> aspectNames = this.aspectBeanNames;
 
 		if (aspectNames == null) {
 			synchronized (this) {
 				aspectNames = this.aspectBeanNames;
+				//再检查一次 DCL
 				if (aspectNames == null) {
+
 					List<Advisor> advisors = new LinkedList<>();
 					aspectNames = new LinkedList<>();
+
+					//获取所有的beanName
 					String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 							this.beanFactory, Object.class, true, false);
+
+					//循环所有的beanName找出对应的增强方法
 					for (String beanName : beanNames) {
+						// 不合法的 bean 则略过，由子类定义规则，默认返回 true
 						if (!isEligibleBean(beanName)) {
 							continue;
 						}
 						// We must be careful not to instantiate beans eagerly as in this case they
 						// would be cached by the Spring container but would not have been weaved.
+						//获取对应的bean类型
 						Class<?> beanType = this.beanFactory.getType(beanName);
 						if (beanType == null) {
 							continue;
 						}
+						// 如果存在 Aspect 注解
 						if (this.advisorFactory.isAspect(beanType)) {
+							//记录存@Aspect注解的bean
 							aspectNames.add(beanName);
+							//创建Aspect元数据
 							AspectMetadata amd = new AspectMetadata(beanType, beanName);
+							//如果类时单例
 							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
+								//创建元数据aop实例化工厂
 								MetadataAwareAspectInstanceFactory factory =
 										new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
+								/**
+								 * 从工厂里面获取标记 Aspect 注解类中的增强方法
+								 * 普通增强器的获取，实现步骤包括对切点的注解的获取以及根据注解信息生产
+								 * {@link org.springframework.aop.aspectj.annotation.ReflectiveAspectJAdvisorFactory#getAdvisors(MetadataAwareAspectInstanceFactory)}
+								 */
 								List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
 								if (this.beanFactory.isSingleton(beanName)) {
 									this.advisorsCache.put(beanName, classAdvisors);
@@ -138,6 +163,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 		if (aspectNames.isEmpty()) {
 			return Collections.emptyList();
 		}
+		// 记录在缓存中
 		List<Advisor> advisors = new LinkedList<>();
 		for (String aspectName : aspectNames) {
 			List<Advisor> cachedAdvisors = this.advisorsCache.get(aspectName);

@@ -20,6 +20,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 /**
+ * 默认配置 bean 定义
  * A simple holder for {@code BeanDefinition} property defaults.
  *
  * @author Mark Fisher
@@ -27,6 +28,7 @@ import org.springframework.util.StringUtils;
  */
 public class BeanDefinitionDefaults {
 
+	/**懒加载 默认 0 即为false*/
 	private boolean lazyInit;
 
 	private int dependencyCheck = AbstractBeanDefinition.DEPENDENCY_CHECK_NONE;

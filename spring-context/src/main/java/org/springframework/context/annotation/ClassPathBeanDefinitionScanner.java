@@ -274,23 +274,35 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
 		Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
 		for (String basePackage : basePackages) {
+			//进行扫描注解并包装成BeanDefinition
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
 			for (BeanDefinition candidate : candidates) {
+				//解析 @Scope 注解，如果类上没有则默认单例
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
 
 				candidate.setScope(scopeMetadata.getScopeName());
+				//获取 beanName
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
+
+				//对注册的bean进行另外的赋值处理，比如默认属性的配置
+				//返回的candidate类型为ScannedGenericBeanDefinition，下面两者条件满足
 				if (candidate instanceof AbstractBeanDefinition) {
+					//设置lazy-init/autowire-code默认属性，从spring配置的<beans>节点属性读取
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
+
 				if (candidate instanceof AnnotatedBeanDefinition) {
+					//读取bean上的注解，比如`@Lazy`、`@Dependson`的值设置相应的属性
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
+				//查看是否已注册
 				if (checkCandidate(beanName, candidate)) {
 					BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
+					//默认采取cglib来做代理
 					definitionHolder =
 							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					beanDefinitions.add(definitionHolder);
+					//注册bean信息到工厂中
 					registerBeanDefinition(definitionHolder, this.registry);
 				}
 			}
@@ -305,6 +317,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * @param beanName the generated bean name for the given bean
 	 */
 	protected void postProcessBeanDefinition(AbstractBeanDefinition beanDefinition, String beanName) {
+		// 添加 bean 的默认配置
 		beanDefinition.applyDefaults(this.beanDefinitionDefaults);
 		if (this.autowireCandidatePatterns != null) {
 			beanDefinition.setAutowireCandidate(PatternMatchUtils.simpleMatch(this.autowireCandidatePatterns, beanName));
@@ -335,6 +348,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * bean definition has been found for the specified name
 	 */
 	protected boolean checkCandidate(String beanName, BeanDefinition beanDefinition) throws IllegalStateException {
+		// bean 没有注册
 		if (!this.registry.containsBeanDefinition(beanName)) {
 			return true;
 		}

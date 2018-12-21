@@ -24,6 +24,11 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.lang.Nullable;
 
 /**
+ *
+ * 工厂接口ConfigurableListableBeanFactory同时继承了3个接口，
+ * ListableBeanFactory、AutowireCapableBeanFactory 和 ConfigurableBeanFactory，
+ * 这个工厂接口的自有方法总体上只是对父类接口功能的补充，包含了BeanFactory体系目前的所有方法，可以说是接口的集大成者。
+ *
  * Configuration interface to be implemented by most listable bean factories.
  * In addition to {@link ConfigurableBeanFactory}, it provides facilities to
  * analyze and modify bean definitions, and to pre-instantiate singletons.
@@ -42,7 +47,12 @@ import org.springframework.lang.Nullable;
 public interface ConfigurableListableBeanFactory
 		extends ListableBeanFactory, AutowireCapableBeanFactory, ConfigurableBeanFactory {
 
+
+	//-------------------------------------------------------------------------
+	// 设置忽略的依赖关系,注册找到的特殊依赖
+	//-------------------------------------------------------------------------
 	/**
+	 * 忽略自动装配的依赖类型
 	 * Ignore the given dependency type for autowiring:
 	 * for example, String. Default is none.
 	 * @param type the dependency type to ignore
@@ -50,6 +60,7 @@ public interface ConfigurableListableBeanFactory
 	void ignoreDependencyType(Class<?> type);
 
 	/**
+	 * 忽略自动装配的接口
 	 * Ignore the given dependency interface for autowiring.
 	 * <p>This will typically be used by application contexts to register
 	 * dependencies that are resolved in other ways, like BeanFactory through
@@ -63,6 +74,7 @@ public interface ConfigurableListableBeanFactory
 	void ignoreDependencyInterface(Class<?> ifc);
 
 	/**
+	 * 注册一个可分解的依赖
 	 * Register a special dependency type with corresponding autowired value.
 	 * <p>This is intended for factory/context references that are supposed
 	 * to be autowirable but are not defined as beans in the factory:
@@ -81,6 +93,7 @@ public interface ConfigurableListableBeanFactory
 	void registerResolvableDependency(Class<?> dependencyType, @Nullable Object autowiredValue);
 
 	/**
+	 * 判断指定的Bean是否有资格作为自动装配的候选者
 	 * Determine whether the specified bean qualifies as an autowire candidate,
 	 * to be injected into other beans which declare a dependency of matching type.
 	 * <p>This method checks ancestor factories as well.
@@ -92,7 +105,13 @@ public interface ConfigurableListableBeanFactory
 	boolean isAutowireCandidate(String beanName, DependencyDescriptor descriptor)
 			throws NoSuchBeanDefinitionException;
 
+	//-------------------------------------------------------------------------
+	// 获取bean定义 (可以访问属性值跟构造方法的参数值)
+	//-------------------------------------------------------------------------
+
 	/**
+	 * 返回注册的Bean定义
+	 *
 	 * Return the registered BeanDefinition for the specified bean, allowing access
 	 * to its property values and constructor argument value (which can be
 	 * modified during bean factory post-processing).
@@ -134,7 +153,12 @@ public interface ConfigurableListableBeanFactory
 	 */
 	void clearMetadataCache();
 
+	//-------------------------------------------------------------------------
+	// 锁定配置信息.在调用refresh时会使用到.
+	//-------------------------------------------------------------------------
+
 	/**
+	 * 暂时冻结所有的Bean配置
 	 * Freeze all bean definitions, signalling that the registered bean definitions
 	 * will not be modified or post-processed any further.
 	 * <p>This allows the factory to aggressively cache bean definition metadata.
@@ -142,13 +166,20 @@ public interface ConfigurableListableBeanFactory
 	void freezeConfiguration();
 
 	/**
+	 * 判断本工厂配置是否被冻结
 	 * Return whether this factory's bean definitions are frozen,
 	 * i.e. are not supposed to be modified or post-processed any further.
 	 * @return {@code true} if the factory's configuration is considered frozen
 	 */
 	boolean isConfigurationFrozen();
 
+	//-------------------------------------------------------------------------
+	// 预加载不是懒加载的单例.用于解决循环依赖问题
+	//-------------------------------------------------------------------------
+
 	/**
+	 * 使所有的非延迟加载的单例类都实例化
+	 *
 	 * Ensure that all non-lazy-init singletons are instantiated, also considering
 	 * {@link org.springframework.beans.factory.FactoryBean FactoryBeans}.
 	 * Typically invoked at the end of factory setup, if desired.

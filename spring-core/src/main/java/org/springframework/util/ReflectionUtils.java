@@ -529,20 +529,6 @@ public abstract class ReflectionUtils {
 
 	/**
 	 * Perform the given callback operation on all matching methods of the given
-	 * class and superclasses.
-	 * <p>The same named method occurring on subclass and superclass will appear
-	 * twice, unless excluded by a {@link MethodFilter}.
-	 * @param clazz the class to introspect
-	 * @param mc the callback to invoke for each method
-	 * @throws IllegalStateException if introspection fails
-	 * @see #doWithMethods(Class, MethodCallback, MethodFilter)
-	 */
-	public static void doWithMethods(Class<?> clazz, MethodCallback mc) {
-		doWithMethods(clazz, mc, null);
-	}
-
-	/**
-	 * Perform the given callback operation on all matching methods of the given
 	 * class and superclasses (or given interface and super-interfaces).
 	 * <p>The same named method occurring on subclass and superclass will appear
 	 * twice, unless excluded by the specified {@link MethodFilter}.
@@ -553,26 +539,46 @@ public abstract class ReflectionUtils {
 	 */
 	public static void doWithMethods(Class<?> clazz, MethodCallback mc, @Nullable MethodFilter mf) {
 		// Keep backing up the inheritance hierarchy.
+		//获取类中所有的方法
+		//这里需要注意的是 这里支持JDK1.8中的新特性 可以获取到接口中的default方法
 		Method[] methods = getDeclaredMethods(clazz);
 		for (Method method : methods) {
+			//如果传入的MethodFilter不等于null的话，则调用它的matches方法 根据匹配规则进行匹配
 			if (mf != null && !mf.matches(method)) {
 				continue;
 			}
 			try {
+				//回调前面我们定义的doWith方法
 				mc.doWith(method);
 			}
 			catch (IllegalAccessException ex) {
 				throw new IllegalStateException("Not allowed to access method '" + method.getName() + "': " + ex);
 			}
 		}
+		//父类中的方法
 		if (clazz.getSuperclass() != null) {
 			doWithMethods(clazz.getSuperclass(), mc, mf);
 		}
+		//接口中的方法
 		else if (clazz.isInterface()) {
 			for (Class<?> superIfc : clazz.getInterfaces()) {
 				doWithMethods(superIfc, mc, mf);
 			}
 		}
+	}
+
+	/**
+	 * Perform the given callback operation on all matching methods of the given
+	 * class and superclasses.
+	 * <p>The same named method occurring on subclass and superclass will appear
+	 * twice, unless excluded by a {@link MethodFilter}.
+	 * @param clazz the class to introspect
+	 * @param mc the callback to invoke for each method
+	 * @throws IllegalStateException if introspection fails
+	 * @see #doWithMethods(Class, MethodCallback, MethodFilter)
+	 */
+	public static void doWithMethods(Class<?> clazz, MethodCallback mc) {
+		doWithMethods(clazz, mc, null);
 	}
 
 	/**
@@ -812,6 +818,7 @@ public abstract class ReflectionUtils {
 	public interface MethodFilter {
 
 		/**
+		 * 检查一个指定的方法是否匹配规则
 		 * Determine whether the given method matches.
 		 * @param method the method to check
 		 */

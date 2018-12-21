@@ -5,5 +5,6 @@ package kevin.context.beans;
  * @date 2018-12-14
  * @description 主要测试 spring 会不会用类加载加载该类
  ******************************************************************************/
+
 public class NotBean {
 }

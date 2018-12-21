@@ -606,6 +606,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				Assert.state(beanFactory != null, "No BeanFactory available");
 				TypeConverter typeConverter = beanFactory.getTypeConverter();
 				try {
+					//通过BeanFactory的resolveDependency()方法解决依赖的值。也就是这个参数需要注入的值
 					value = beanFactory.resolveDependency(desc, beanName, autowiredBeanNames, typeConverter);
 				}
 				catch (BeansException ex) {
@@ -632,6 +633,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					}
 				}
 			}
+			//这里就是通过反射设置参数可见性，然后把值设置到该参数上。
 			if (value != null) {
 				ReflectionUtils.makeAccessible(field);
 				field.set(bean, value);
