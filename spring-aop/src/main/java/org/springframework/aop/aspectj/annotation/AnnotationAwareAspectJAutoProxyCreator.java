@@ -86,7 +86,8 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 	}
 
 	/**
-	 * AnnotationAwareAspectJAutoProxyCreator 间接继承了 AbstractAdvisorAutoProxyCreator,
+	 * AnnotationAwareAspectJAutoProxyCreator 间接继承了
+	 * {@link org.springframework.aop.framework.autoproxy.AbstractAdvisorAutoProxyCreator},
 	 * 在实现获取增强的方法中除了保留父类的获取配置文件中的增强外，同时添加了获取 Bean的注解增强的功能，
 	 * 那么其实实现真是由 this.aspectJAdvisorsBuilder.buildAspectJAdvisors()
 	 * @return

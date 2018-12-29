@@ -17,9 +17,8 @@ public class UserDaoImpl implements UserDao{
     public void add() {
         System.out.println("==ADD==");
         this.delete();
-
-        //这里
-        ((UserDao)AopContext.currentProxy()).delete();
+        //这里拿到 userDaoImpl 对象的代理对象，这样就可以进入到AOP前面
+       // ((UserDao)AopContext.currentProxy()).delete();
     }
 
     @Override

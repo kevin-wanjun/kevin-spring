@@ -136,8 +136,10 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 	private final Set<Object> earlyProxyReferences = Collections.newSetFromMap(new ConcurrentHashMap<>(16));
 
+
 	private final Map<Object, Class<?>> proxyTypes = new ConcurrentHashMap<>(16);
 
+	/**缓存需要代理的 bean*/
 	private final Map<Object, Boolean> advisedBeans = new ConcurrentHashMap<>(256);
 
 
@@ -303,6 +305,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			//否则看 beanClass 是否继承 BeanFactory 接口 是的话 在beanName 前面加上 &，不是直接返回 beanName
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
 			if (!this.earlyProxyReferences.contains(cacheKey)) {
+				//这个方法的主要作用就是创建代理对象
 				//如果它适合做代理，则需要封装指定的bean
 				return wrapIfNecessary(bean, beanName, cacheKey);
 			}
@@ -319,7 +322,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @return a proxy wrapping the bean, or the raw bean instance as-is
 	 */
 	protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
-		// 如果是声明的需要原始Bean，则直接返回
+		//如果已经创建过了
 		if (StringUtils.hasLength(beanName) && this.targetSourcedBeans.contains(beanName)) {
 			return bean;
 		}
@@ -346,7 +349,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			this.proxyTypes.put(cacheKey, proxy.getClass());
 			return proxy;
 		}
-
+		//如果不需要创建代理对象的话  这里缓存false
 		this.advisedBeans.put(cacheKey, Boolean.FALSE);
 		return bean;
 	}

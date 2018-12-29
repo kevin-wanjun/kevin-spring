@@ -379,19 +379,27 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 	 */
 	public final synchronized void calculateArgumentBindings() {
 		// The simple case... nothing to bind.
+		//如果已经进行过参数绑定了  或者通知方法中没有参数
 		if (this.argumentsIntrospected || this.parameterTypes.length == 0) {
 			return;
 		}
 
 		int numUnboundArgs = this.parameterTypes.length;
+		//通知方法参数类型
 		Class<?>[] parameterTypes = this.aspectJAdviceMethod.getParameterTypes();
-		if (maybeBindJoinPoint(parameterTypes[0]) || maybeBindProceedingJoinPoint(parameterTypes[0]) ||
+		//如果第一个参数是JoinPoint或者ProceedingJoinPoint
+		if (maybeBindJoinPoint(parameterTypes[0]) ||
+				//这个方法中还有一个校验 即只有在环绕通知中第一个参数类型才能是ProceedingJoinPoint
+				maybeBindProceedingJoinPoint(parameterTypes[0]) ||
+				//如果第一个参数是JoinPoint.StaticPart
 				maybeBindJoinPointStaticPart(parameterTypes[0])) {
 			numUnboundArgs--;
 		}
 
 		if (numUnboundArgs > 0) {
 			// need to bind arguments by name as returned from the pointcut match
+			//进行参数绑定 绑定过程略复杂
+			//常见的场景是我们使用 后置返回通知和后置异常通知的时候 需要指定 returning和throwing的值
 			bindArgumentsByName(numUnboundArgs);
 		}
 

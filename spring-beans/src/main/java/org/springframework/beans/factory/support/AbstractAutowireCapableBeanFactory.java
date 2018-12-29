@@ -612,7 +612,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		try {
 			//填充bean的属性，将各个属性注入，其中可能存在依赖于其他 bean 属性，则会递归初始依赖bean
 			populateBean(beanName, mbd, instanceWrapper);
-			//调用处事方法，比如 init-method
+			//调用初始方法，比如 TODO 这里还需要研究
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -1803,6 +1803,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					beanName, "Invocation of init method failed", ex);
 		}
 		if (mbd == null || !mbd.isSynthetic()) {
+			// TODO 这里
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}
 

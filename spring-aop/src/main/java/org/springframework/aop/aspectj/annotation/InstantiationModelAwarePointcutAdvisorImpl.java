@@ -83,17 +83,24 @@ class InstantiationModelAwarePointcutAdvisorImpl
 	public InstantiationModelAwarePointcutAdvisorImpl(AspectJExpressionPointcut declaredPointcut,
 			Method aspectJAdviceMethod, AspectJAdvisorFactory aspectJAdvisorFactory,
 			MetadataAwareAspectInstanceFactory aspectInstanceFactory, int declarationOrder, String aspectName) {
-
+		//切点表达式类 AspectJExpressionPointcut
 		this.declaredPointcut = declaredPointcut;
+		//切面类
 		this.declaringClass = aspectJAdviceMethod.getDeclaringClass();
+		//切点表达式方法所在的方法名 这里指的是@Before、@After这些通知类型所在的方法名
 		this.methodName = aspectJAdviceMethod.getName();
+		//通知参数类型
 		this.parameterTypes = aspectJAdviceMethod.getParameterTypes();
+		//切面通知方法
 		this.aspectJAdviceMethod = aspectJAdviceMethod;
+		//ReflectiveAspectJAdvisorFactory实例
 		this.aspectJAdvisorFactory = aspectJAdvisorFactory;
+		//切面对象实例
 		this.aspectInstanceFactory = aspectInstanceFactory;
+		//切面顺序
 		this.declarationOrder = declarationOrder;
 		this.aspectName = aspectName;
-
+		//根据切面元数据判断是否要延迟实例化 一般为否
 		if (aspectInstanceFactory.getAspectMetadata().isLazilyInstantiated()) {
 			// Static part of the pointcut is a lazy type.
 			Pointcut preInstantiationPointcut = Pointcuts.union(
@@ -102,14 +109,18 @@ class InstantiationModelAwarePointcutAdvisorImpl
 			// Make it dynamic: must mutate from pre-instantiation to post-instantiation state.
 			// If it's not a dynamic pointcut, it may be optimized out
 			// by the Spring AOP infrastructure after the first evaluation.
+
 			this.pointcut = new PerTargetInstantiationModelPointcut(
 					this.declaredPointcut, preInstantiationPointcut, aspectInstanceFactory);
 			this.lazy = true;
 		}
 		else {
 			// A singleton aspect.
+			//切点表达式类
 			this.pointcut = this.declaredPointcut;
 			this.lazy = false;
+			//这里获取Advice实例 这里又拥有了Advice的实例！！！！
+			//不得不说InstantiationModelAwarePointcutAdvisorImpl这个类真的是太强大了
 			this.instantiatedAdvice = instantiateAdvice(this.declaredPointcut);
 		}
 	}
@@ -166,6 +177,13 @@ class InstantiationModelAwarePointcutAdvisorImpl
 	private Advice instantiateAdvice(AspectJExpressionPointcut pointcut) {
 		Advice advice = this.aspectJAdvisorFactory.getAdvice(this.aspectJAdviceMethod, pointcut,
 				this.aspectInstanceFactory, this.declarationOrder, this.aspectName);
+
+		//入参为切点表达式类
+		//这里是通过调用aspectJAdvisorFactory来获取Advice
+		//aspectJAdvisorFactory的实例是ReflectiveAspectJAdvisorFactory所以最终我们还是要到
+		//ReflectiveAspectJAdvisorFactory中去分析Advice的获取过程
+		//ReflectiveAspectJAdvisorFactory真是一个重要的类啊Advisor和Advice的获取都是在这个类中完成的
+		//入参为：通知方法、切点表达式类、切面实例、切面的一个顺序、切面类名
 		return (advice != null ? advice : EMPTY_ADVICE);
 	}
 

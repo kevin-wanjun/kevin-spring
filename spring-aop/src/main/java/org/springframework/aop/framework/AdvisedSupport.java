@@ -127,6 +127,9 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	 * @see org.springframework.aop.target.SingletonTargetSource
 	 */
 	public void setTarget(Object target) {
+		//注意这里是将目标对象封装为了 SingletonTargetSource 是一个单例的
+		//这里一定要记着 SingletonTargetSource中存放的是我们的目标对象 不是代理对象
+		//这里调用的是AdvisedSupport中的方法 setTargetSource这个方法是Advised中定义的方法
 		setTargetSource(new SingletonTargetSource(target));
 	}
 
@@ -159,6 +162,8 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 
 	@Override
 	public Class<?> getTargetClass() {
+		//直接调用targetSource的getTargetClass方法
+		//其实也是相当于调用target.getClass()
 		return this.targetSource.getTargetClass();
 	}
 
@@ -194,6 +199,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	 */
 	public void setInterfaces(Class<?>... interfaces) {
 		Assert.notNull(interfaces, "Interfaces must not be null");
+		//先清空原来的接口信息 是一个List
 		this.interfaces.clear();
 		for (Class<?> ifc : interfaces) {
 			addInterface(ifc);
@@ -206,6 +212,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	 */
 	public void addInterface(Class<?> intf) {
 		Assert.notNull(intf, "Interface must not be null");
+		//如果不是接口 抛出异常
 		if (!intf.isInterface()) {
 			throw new IllegalArgumentException("[" + intf.getName() + "] is not an interface");
 		}
@@ -491,6 +498,9 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	 * Invoked when advice has changed.
 	 */
 	protected void adviceChanged() {
+		//清空缓存的方法信息 这里可以思考一下为什么当Interface变化的时候，会清空methodCache
+		//Map<MethodCacheKey, List<Object>> methodCache
+		//为什么这个类名是adviceChanged？？？
 		this.methodCache.clear();
 	}
 

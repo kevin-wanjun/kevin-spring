@@ -45,7 +45,9 @@ public class SingletonMetadataAwareAspectInstanceFactory extends SingletonAspect
 	 * @param aspectName the name of the aspect
 	 */
 	public SingletonMetadataAwareAspectInstanceFactory(Object aspectInstance, String aspectName) {
+		//将切面实例传入到父类构造函数中
 		super(aspectInstance);
+		//创建切面元数据 和之前的过程一下
 		this.metadata = new AspectMetadata(aspectInstance.getClass(), aspectName);
 	}
 

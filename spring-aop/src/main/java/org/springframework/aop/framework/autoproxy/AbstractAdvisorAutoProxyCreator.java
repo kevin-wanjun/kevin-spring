@@ -74,6 +74,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 			Class<?> beanClass, String beanName, @Nullable TargetSource targetSource) {
 		//获取去所有的代理方法
 		List<Advisor> advisors = findEligibleAdvisors(beanClass, beanName);
+		//如果获取的Advisor为空的话，则直接返回DO_NOT_PROXY 返回这个值的时候 是不创建代理对象
 		if (advisors.isEmpty()) {
 			return DO_NOT_PROXY;
 		}
@@ -91,11 +92,15 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 * @see #extendAdvisors
 	 */
 	protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName) {
-
+		//获取Spring容器中的所有的通知方法  封装为Advisor集合
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
+		//这一步就是为目标对象挑选合适的Advisor 即目标对象和切点表达式相匹配
 		List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
+		//这个方法做的事是向 上一步获取到的Advisor中 插入ExposeInvocationInterceptor.ADVISOR 插在第一个位置
 		extendAdvisors(eligibleAdvisors);
 		if (!eligibleAdvisors.isEmpty()) {
+			//排序  很复杂的实现  不说了  如果你对一个目标对象使用多个 相同类型的通知的话 请把这些通知放到不同的Aspect中，
+			//并实现Order接口或者使用Ordered注解标注顺序
 			eligibleAdvisors = sortAdvisors(eligibleAdvisors);
 		}
 		return eligibleAdvisors;

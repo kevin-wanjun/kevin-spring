@@ -93,13 +93,13 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 		if (aspectNames == null) {
 			synchronized (this) {
 				aspectNames = this.aspectBeanNames;
-				//再检查一次 DCL
+				//DCL再检查一次
 				if (aspectNames == null) {
-
-					List<Advisor> advisors = new LinkedList<>();
 					aspectNames = new LinkedList<>();
 
-					//获取所有的beanName
+					List<Advisor> advisors = new LinkedList<>();
+
+					//这里是从BeanFactory中获取所有的Bean
 					String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 							this.beanFactory, Object.class, true, false);
 
@@ -111,20 +111,22 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 						}
 						// We must be careful not to instantiate beans eagerly as in this case they
 						// would be cached by the Spring container but would not have been weaved.
-						//获取对应的bean类型
+						//注意看上面这个注释的内容：在这个场景下我们获取BeanClass的时候必须要小心处理，以免会提前初始化
+						//Bean，这些Bean在初始化之后会被Spring容器缓存起来，但是这些Bean可能还没有被织入。
 						Class<?> beanType = this.beanFactory.getType(beanName);
 						if (beanType == null) {
 							continue;
 						}
-						// 如果存在 Aspect 注解
+						//判断上面获取到的BeanClass是否带有Aspect注解
 						if (this.advisorFactory.isAspect(beanType)) {
 							//记录存@Aspect注解的bean
 							aspectNames.add(beanName);
-							//创建Aspect元数据
+							//创建切面元数据 这部门的内容和我们之前分析大致差不多 我们就不再详细分析了
 							AspectMetadata amd = new AspectMetadata(beanType, beanName);
-							//如果类时单例
+							//如果是单例
 							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
 								//创建元数据aop实例化工厂
+								//注意这里放入了 BeanFactory的引用 方便后面从BeanFactory中获取切面的实例
 								MetadataAwareAspectInstanceFactory factory =
 										new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
 								/**
@@ -133,6 +135,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 								 * {@link org.springframework.aop.aspectj.annotation.ReflectiveAspectJAdvisorFactory#getAdvisors(MetadataAwareAspectInstanceFactory)}
 								 */
 								List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
+								//如果是单例的 缓存起来
 								if (this.beanFactory.isSingleton(beanName)) {
 									this.advisorsCache.put(beanName, classAdvisors);
 								}
@@ -147,6 +150,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 									throw new IllegalArgumentException("Bean with name '" + beanName +
 											"' is a singleton, but aspect instantiation model is not singleton");
 								}
+								//这里使用的是 PrototypeAspectInstanceFactory
 								MetadataAwareAspectInstanceFactory factory =
 										new PrototypeAspectInstanceFactory(this.beanFactory, beanName);
 								this.aspectFactoryCache.put(beanName, factory);
@@ -163,7 +167,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 		if (aspectNames.isEmpty()) {
 			return Collections.emptyList();
 		}
-		// 记录在缓存中
+		//下面这些就是从缓存中获取Advisor了
 		List<Advisor> advisors = new LinkedList<>();
 		for (String aspectName : aspectNames) {
 			List<Advisor> cachedAdvisors = this.advisorsCache.get(aspectName);

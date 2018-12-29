@@ -302,6 +302,9 @@ public abstract class AopUtils {
 	 * (may be the incoming List as-is)
 	 */
 	public static List<Advisor> findAdvisorsThatCanApply(List<Advisor> candidateAdvisors, Class<?> clazz) {
+		//如果传入的Advisor集合为空的话，直接返回这个空集合
+		//这里没有判断candidateAdvisors不为null的情况 因为在获取Advisor的地方是先创建一个空的集合，再进行添加Advisor的动作
+		//不过还是加一下不为null的判断更好一点
 		if (candidateAdvisors.isEmpty()) {
 			return candidateAdvisors;
 		}

@@ -181,12 +181,14 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	 * pointcut String.
 	 */
 	protected static class AspectJAnnotation<A extends Annotation> {
-
+		//切点表达式所在的属性  poincut会覆盖value的值
+		//其实这里指的是 通知类型注解中的属性
 		private static final String[] EXPRESSION_PROPERTIES = new String[] {"value", "pointcut"};
 
 		private static Map<Class<?>, AspectJAnnotationType> annotationTypes = new HashMap<>();
 
 		static {
+			//初始化通知类型
 			annotationTypes.put(Pointcut.class,AspectJAnnotationType.AtPointcut);
 			annotationTypes.put(After.class,AspectJAnnotationType.AtAfter);
 			annotationTypes.put(AfterReturning.class,AspectJAnnotationType.AtAfterReturning);
@@ -204,12 +206,16 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 		private final String argumentNames;
 
 		public AspectJAnnotation(A annotation) {
+			//注解信息
 			this.annotation = annotation;
+			//根据注解类型获取通知类型
 			this.annotationType = determineAnnotationType(annotation);
 			// We know these methods exist with the same name on each object,
 			// but need to invoke them reflectively as there isn't a common interface.
 			try {
+				//从通知类型注解上面获取切点表达式
 				this.pointcutExpression = resolveExpression(annotation);
+				//获取参数的名字
 				this.argumentNames = (String) annotation.getClass().getMethod("argNames").invoke(annotation);
 			}
 			catch (Exception ex) {
@@ -226,7 +232,14 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 			throw new IllegalStateException("Unknown annotation type: " + annotation.toString());
 		}
 
+		/**
+		 * 从这个获取切点表达式的代码中我们可以看到 pointcut的属性会覆盖value的属性值
+		 * @param annotation
+		 * @return
+		 * @throws Exception
+		 */
 		private String resolveExpression(A annotation) throws Exception {
+			//循环上面的切点属性
 			for (String methodName : EXPRESSION_PROPERTIES) {
 				Method method;
 				try {
@@ -236,6 +249,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 					method = null;
 				}
 				if (method != null) {
+					//获取切点表达式！！！
 					String candidate = (String) method.invoke(annotation);
 					if (StringUtils.hasText(candidate)) {
 						return candidate;

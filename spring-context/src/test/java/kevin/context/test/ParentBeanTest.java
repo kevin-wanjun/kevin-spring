@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -22,7 +23,6 @@ public class ParentBeanTest {
 
 
     private  BeanFactory beanFactory;
-
 
     @Before
     public void loadBeans() {

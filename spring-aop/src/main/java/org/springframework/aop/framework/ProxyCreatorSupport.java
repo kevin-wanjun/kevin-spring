@@ -69,6 +69,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
 	}
 
 	/**
+	 * 在SpringAOP中 AopProxyFactory只有一个实现类，这个实现类就是DefaultAopProxyFactory
 	 * Return the AopProxyFactory that this ProxyConfig uses.
 	 */
 	public AopProxyFactory getAopProxyFactory() {
@@ -95,13 +96,17 @@ public class ProxyCreatorSupport extends AdvisedSupport {
 
 
 	/**
+	 * 这是一个同步方法
 	 * Subclasses should call this to get a new AOP proxy. They should <b>not</b>
 	 * create an AOP proxy with {@code this} as an argument.
 	 */
 	protected final synchronized AopProxy createAopProxy() {
 		if (!this.active) {
+			//这里会监听调用AdvisedSupportListener实现类的activated方法
 			activate();
 		}
+		//获取AopProxyFactory
+		//调用createAopProxy的时候传入了this对象
 		return getAopProxyFactory().createAopProxy(this);
 	}
 
@@ -125,6 +130,8 @@ public class ProxyCreatorSupport extends AdvisedSupport {
 		super.adviceChanged();
 		synchronized (this) {
 			if (this.active) {
+				//给Advised的监听器发送通知 通知Advised的变化
+				//在Spring中没有默认的实现
 				for (AdvisedSupportListener listener : this.listeners) {
 					listener.adviceChanged(this);
 				}

@@ -159,7 +159,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	 * @see org.springframework.context.support.GenericApplicationContext
 	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
 	 */
-	public ClassPathXmlApplicationContext(String path, Class<?> clazz) throws BeansException {
+	public  ClassPathXmlApplicationContext(String path, Class<?> clazz) throws BeansException {
 		this(new String[] {path}, clazz);
 	}
 
